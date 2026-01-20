@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
+import static com.darkaddons.ModSounds.getMusicCount;
 import static com.darkaddons.MusicMenuManager.*;
 
 public class MusicStick extends Item {
@@ -39,7 +40,8 @@ public class MusicStick extends Item {
     @Override
     public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
         consumer.accept(Component.literal("Right-click to open music menu").withStyle(ChatFormatting.GREEN));
+        consumer.accept(Component.literal("Music count: ").withStyle(ChatFormatting.GRAY).append(Component.literal(String.valueOf(getMusicCount())).withStyle(ChatFormatting.BLUE)));
         if (DarkAddons.clientHelper.isShiftPressed())
-            consumer.accept(Component.literal("Currently Playing: ").withStyle(ChatFormatting.GRAY).append(Component.literal(currentTrack).withStyle((currentTrack.equals("None")) ? ChatFormatting.RED : ChatFormatting.BLUE).withStyle(ChatFormatting.BOLD)));
+            consumer.accept(Component.literal("Currently Playing: ").withStyle(ChatFormatting.GRAY).append(Component.literal(currentTrack).withStyle((currentTrack.equals("None")) ? ChatFormatting.RED : ChatFormatting.BLUE)));
     }
 }
