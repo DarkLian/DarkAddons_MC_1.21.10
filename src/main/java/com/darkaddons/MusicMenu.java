@@ -6,7 +6,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
 import static com.darkaddons.MusicMenuManager.*;
@@ -37,16 +36,20 @@ public class MusicMenu extends ChestMenu {
 
     @Override
     public void clicked(int slotIndex, int button, net.minecraft.world.inventory.ClickType clickType, Player player) {
-        if (slotIndex == resetIndex) handleResetClick(player, musicContainer, page);
+        if (slotIndex < 0 || slotIndex >= 54) return;
         if ((slotIndex >= 10 && slotIndex <= lastMusicIndex)) {
             if (slotIndex % 9 == 0 || slotIndex % 9 == 8) return;
             int musicIndex = getMusicIndex(slotIndex, page);
             handleMusicSwap(player, musicContainer, musicIndex, page);
+            return;
         }
-        if (slotIndex == previousPageIndex && musicContainer.getItem(previousPageIndex).is(Items.ARROW))
+        if (slotIndex == resetIndex) {
+            handleResetClick(player, musicContainer, page);
+        } else if (slotIndex == previousPageIndex && page > 1) {
             MusicMenuManager.shiftPage(player, musicContainer, this, -1);
-        if (slotIndex == nextPageIndex && musicContainer.getItem(nextPageIndex).is(Items.ARROW))
+        } else if (slotIndex == nextPageIndex && page < pageCount) {
             MusicMenuManager.shiftPage(player, musicContainer, this, 1);
+        }
     }
 
     @Override
