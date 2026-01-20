@@ -165,4 +165,8 @@ public class MusicMenuManager {
             musicMenu.broadcastChanges();
         }
     }
+
+    public static void doNothing() {
+        return;
+    }
 }
