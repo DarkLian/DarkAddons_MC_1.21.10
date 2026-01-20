@@ -1,0 +1,5 @@
+1. 9x6 Music Menu (Page/TotalPage), surrounding by gray glass pane, index(5, 4) = reset button(barrier), index(5, 5)
+   = Next page, index(5,3) = Previous page if available; else gray glass pane, no message is shown when switching page.
+
+2.
+

@@ -1,0 +1,101 @@
+{
+  "absolution": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/absolution",
+        "stream": true
+      }
+    ]
+  },
+  "dreams": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/dreams",
+        "stream": true
+      }
+    ]
+  },
+  "regality": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/regality",
+        "stream": true
+      }
+    ]
+  },
+  "village_theme": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/village_theme",
+        "stream": true
+      }
+    ]
+  },
+  "rising_sun": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/rising_sun",
+        "stream": true
+      }
+    ]
+  },
+  "fantasy": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/fantasy",
+        "stream": true
+      }
+    ]
+  },
+  "world": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/world",
+        "stream": true
+      }
+    ]
+  },
+  "ice_cream_sandwich": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/ice_cream_sandwich",
+        "stream": true
+      }
+    ]
+  },
+  "levitate": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/levitate",
+        "stream": true
+      }
+    ]
+  },
+  "lanterns": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/lanterns",
+        "stream": true
+      }
+    ]
+  },
+  "zayton": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/zayton",
+        "stream": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "darkaddons",
+	"version": "${version}",
+	"name": "DarkAddons",
+	"description": "Custom items and feature exploration for educational purpose",
+	"authors": [
+		"MDarkAncient"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/darkaddons/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.darkaddons.DarkAddons"
+		],
+		"client": [
+			"com.darkaddons.DarkAddonsClient"
+		]
+	},
+	"mixins": [
+		"darkaddons.mixins.json",
+		{
+			"config": "darkaddons.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
