@@ -19,11 +19,18 @@ import static com.darkaddons.ModSounds.getMusicCount;
 import static com.darkaddons.MusicMenuManager.*;
 
 public class MusicStick extends Item {
-    public static String currentTrack;
+    private static String currentTrack = "None";
 
     public MusicStick(Properties properties) {
         super(properties);
-        currentTrack = "None";
+    }
+
+    public static String getCurrentTrack() {
+        return currentTrack;
+    }
+
+    public static void setCurrentTrack(String newTrack) {
+        currentTrack = newTrack;
     }
 
     @Override

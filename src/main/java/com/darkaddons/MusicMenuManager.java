@@ -16,7 +16,8 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 import static com.darkaddons.ModSounds.*;
-import static com.darkaddons.item.MusicStick.currentTrack;
+import static com.darkaddons.item.MusicStick.getCurrentTrack;
+import static com.darkaddons.item.MusicStick.setCurrentTrack;
 
 public class MusicMenuManager {
     public static final int resetIndex = 49;
@@ -96,7 +97,7 @@ public class MusicMenuManager {
         if (pageMusicCount == 0) return;
         for (int i = 0; i < pageMusicCount; i++) {
             int musicIndex = i + 28 * (page - 1);
-            boolean isSelected = currentTrack.equals(getSoundName(musicIndex));
+            boolean isSelected = getCurrentTrack().equals(getSoundName(musicIndex));
             ItemStack menuItem = MUSIC_ITEM_CACHE[musicIndex].copy();
             menuItem.set(DataComponents.LORE, isSelected ? SELECTED_LORE : UNSELECTED_LORE);
             menuItem.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, isSelected);
@@ -113,8 +114,8 @@ public class MusicMenuManager {
     public static void handleResetClick(Player player, Container container, int page) {
         DarkAddons.clientHelper.stopMusic();
         player.displayClientMessage(Component.literal("Reset Music").withStyle(ChatFormatting.RED), false);
-        if (!currentTrack.equals("None")) {
-            currentTrack = "None";
+        if (!getCurrentTrack().equals("None")) {
+            setCurrentTrack("None");
             refreshMusicMenu(player, page, container);
         }
     }
@@ -126,13 +127,13 @@ public class MusicMenuManager {
     }
 
     public static void handleMusicSwap(Player player, Container container, int musicIndex, int page) {
-        if (currentTrack.equals(getSoundName(musicIndex))) {
+        if (getCurrentTrack().equals(getSoundName(musicIndex))) {
             player.displayClientMessage(Component.literal("Music is already selected").withStyle(ChatFormatting.RED), false);
         } else {
-            currentTrack = getSoundName(musicIndex);
+            setCurrentTrack(getSoundName(musicIndex));
             swapMusic(musicIndex, player);
             refreshMusicMenu(player, page, container);
-            player.displayClientMessage(Component.literal("Playing: ").withStyle(ChatFormatting.GREEN).append(Component.literal(currentTrack).withStyle(ChatFormatting.BLUE)), false);
+            player.displayClientMessage(Component.literal("Playing: ").withStyle(ChatFormatting.GREEN).append(Component.literal(getCurrentTrack()).withStyle(ChatFormatting.BLUE)), false);
         }
     }
 
