@@ -21,9 +21,9 @@ import static com.darkaddons.DarkAddons.MOD_ID;
 
 public final class ModItems {
 
-    public static final Item LIGHTNING_STICK = register("lightning_stick", LightningStick::new, new Item.Properties().stacksTo(1).component(ModComponents.charge, 20));
+    public static final Item LIGHTNING_STICK = register("lightning_stick", LightningStick::new, new Item.Properties().stacksTo(1).component(ModComponents.CHARGE, 20));
     public static final Item TELEPORT_STICK = register("teleport_stick", TeleportStick::new, new Item.Properties().stacksTo(1));
-    public static final Item HYPERION = register("hyperion", Hyperion::new, new Item.Properties().stacksTo(1).component(ModComponents.durability, 200));
+    public static final Item HYPERION = register("hyperion", Hyperion::new, new Item.Properties().stacksTo(1).component(ModComponents.DURABILITY, 200));
     public static final Item MUSIC_STICK = register("music_stick", MusicStick::new, new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 
     public static <T extends Item> T register(String name, Function<Item.Properties, T> itemFactory, Item.Properties properties) {

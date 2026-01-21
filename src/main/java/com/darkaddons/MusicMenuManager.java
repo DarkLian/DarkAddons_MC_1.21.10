@@ -21,11 +21,11 @@ import static com.darkaddons.item.MusicStick.getCurrentTrack;
 import static com.darkaddons.item.MusicStick.setCurrentTrack;
 
 public class MusicMenuManager {
-    public static final int previousPageIndex = 48;
-    public static final int closeIndex = 49;
-    public static final int nextPageIndex = 50;
-    public static final int resetIndex = 53;
-    public static final int defaultPage = 1;
+    public static final int PREVIOUS_PAGE_INDEX = 48;
+    public static final int CLOSE_INDEX = 49;
+    public static final int NEXT_PAGE_INDEX = 50;
+    public static final int RESET_INDEX = 53;
+    public static final int DEFAULT_PAGE = 1;
     private static final ItemStack GLASS_PANE = createStaticItem(Items.GRAY_STAINED_GLASS_PANE, "", ChatFormatting.WHITE);
     private static final ItemStack NEXT_ARROW = createStaticItem(Items.ARROW, "Next page", ChatFormatting.GREEN);
     private static final ItemStack PREV_ARROW = createStaticItem(Items.ARROW, "Previous page", ChatFormatting.GREEN);
@@ -91,10 +91,10 @@ public class MusicMenuManager {
             container.setItem(i * 9, GLASS_PANE);
             container.setItem(i * 9 + 8, GLASS_PANE);
         }
-        container.setItem(closeIndex, CLOSE_BARRIER);
-        container.setItem(resetIndex, RESET_REDSTONE_BLOCK);
-        container.setItem(previousPageIndex, (page > 1) ? PREV_ARROW : GLASS_PANE);
-        container.setItem(nextPageIndex, (page < pageCount) ? NEXT_ARROW : GLASS_PANE);
+        container.setItem(CLOSE_INDEX, CLOSE_BARRIER);
+        container.setItem(RESET_INDEX, RESET_REDSTONE_BLOCK);
+        container.setItem(PREVIOUS_PAGE_INDEX, (page > 1) ? PREV_ARROW : GLASS_PANE);
+        container.setItem(NEXT_PAGE_INDEX, (page < pageCount) ? NEXT_ARROW : GLASS_PANE);
     }
 
     public static void loadMusic(SimpleContainer container, int page, int pageMusicCount) {
@@ -156,8 +156,8 @@ public class MusicMenuManager {
 
     public static void callDefaultMusicMenu(Player player) {
         SimpleContainer container = new SimpleContainer(54);
-        buildPage(container, defaultPage);
-        player.openMenu(new SimpleMenuProvider((containerId, playerInventory, p) -> new MusicMenu(containerId, playerInventory, container, defaultPage), Component.literal("Music Menu")));
+        buildPage(container, DEFAULT_PAGE);
+        player.openMenu(new SimpleMenuProvider((containerId, playerInventory, p) -> new MusicMenu(containerId, playerInventory, container, DEFAULT_PAGE), Component.literal("Music Menu")));
     }
 
     public static void refreshMusicMenu(Player player, int page, Container container) {

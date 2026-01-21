@@ -19,24 +19,24 @@ import static com.darkaddons.ModSounds.getMusicCount;
 import static com.darkaddons.MusicMenuManager.*;
 
 public class MusicStick extends Item {
-    private static String currentTrack = "None";
+    private static String CURRENT_TRACK = "None";
 
     public MusicStick(Properties properties) {
         super(properties);
     }
 
     public static String getCurrentTrack() {
-        return currentTrack;
+        return CURRENT_TRACK;
     }
 
     public static void setCurrentTrack(String newTrack) {
-        currentTrack = newTrack;
+        CURRENT_TRACK = newTrack;
     }
 
     @Override
     public @NotNull InteractionResult use(Level level, Player player, InteractionHand hand) {
         if (level.isClientSide()) return InteractionResult.PASS;
-        if (getPageMusicCount(defaultPage) == 0) {
+        if (getPageMusicCount(DEFAULT_PAGE) == 0) {
             player.displayClientMessage(Component.literal("Music stick is temporarily unavailable, please try again later.").withStyle(ChatFormatting.RED), false);
             return InteractionResult.FAIL;
         }
@@ -49,6 +49,6 @@ public class MusicStick extends Item {
         consumer.accept(Component.literal("Right-click to open music menu").withStyle(ChatFormatting.GREEN));
         consumer.accept(Component.literal("Music count: ").withStyle(ChatFormatting.GRAY).append(Component.literal(String.valueOf(getMusicCount())).withStyle(ChatFormatting.BLUE)));
         if (DarkAddons.clientHelper.isShiftPressed())
-            consumer.accept(Component.literal("Currently Playing: ").withStyle(ChatFormatting.GRAY).append(Component.literal(currentTrack).withStyle((currentTrack.equals("None")) ? ChatFormatting.RED : ChatFormatting.BLUE)));
+            consumer.accept(Component.literal("Currently Playing: ").withStyle(ChatFormatting.GRAY).append(Component.literal(CURRENT_TRACK).withStyle((CURRENT_TRACK.equals("None")) ? ChatFormatting.RED : ChatFormatting.BLUE)));
     }
 }

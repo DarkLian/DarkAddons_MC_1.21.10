@@ -5,9 +5,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -19,9 +19,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.darkaddons.utils.utilities.getNearByEntities;
+import static com.darkaddons.utils.utilities.getNearByLivingEntities;
 
 public class LightningStick extends Item {
+    private static final double ABILITY_RADIUS = 10.0;
+    private static final int MAX_CHARGE = 20;
+    private static final int COOLDOWN_TICKS = 20;
+    private static final int RELOAD_COOLDOWN_TICKS = 100;
+
     public LightningStick(Properties properties) {
         super(properties);
     }
@@ -29,51 +34,45 @@ public class LightningStick extends Item {
     @Override
     public @NotNull InteractionResult use(Level level, Player player, InteractionHand hand) {
         if (level.isClientSide()) return InteractionResult.PASS;
-        int count = 0;
         ItemStack itemStack = player.getItemInHand(hand);
-        List<Entity> nearByEntities = getNearByEntities(player, 10.0);
-        int currentCharges = itemStack.getOrDefault(ModComponents.charge, 0);
-
-        final int coolDown = 20;
-        final int reloadCoolDown = 100;
 
         if (player.isCrouching()) {
             player.displayClientMessage(Component.literal("Reloading charges"), false);
-            player.getCooldowns().addCooldown(itemStack, reloadCoolDown);
-            int MAX_CHARGE = 20;
-            itemStack.set(ModComponents.charge, MAX_CHARGE);
+            player.getCooldowns().addCooldown(itemStack, RELOAD_COOLDOWN_TICKS);
+            itemStack.set(ModComponents.CHARGE, MAX_CHARGE);
             return InteractionResult.SUCCESS;
         }
 
-
+        int currentCharges = itemStack.getOrDefault(ModComponents.CHARGE, 0);
         if (currentCharges <= 0) {
             player.displayClientMessage(Component.literal("Not enough charges, please reload in a second."), false);
-            player.getCooldowns().addCooldown(itemStack, coolDown);
+            player.getCooldowns().addCooldown(itemStack, COOLDOWN_TICKS);
             return InteractionResult.PASS;
         }
 
-        if (nearByEntities.isEmpty()) {
+        List<LivingEntity> targets = getNearByLivingEntities(level, player, ABILITY_RADIUS, LivingEntity.class);
+        if (targets.isEmpty()) {
             player.displayClientMessage(Component.literal("No target found."), false);
-            player.getCooldowns().addCooldown(itemStack, coolDown);
+            player.getCooldowns().addCooldown(itemStack, COOLDOWN_TICKS);
             return InteractionResult.PASS;
         }
 
-        for (Entity entity : nearByEntities) {
+        for (LivingEntity target : targets) {
             LightningBolt lightningBolt = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
-            lightningBolt.setPos(entity.getX(), entity.getY(), entity.getZ());
+            lightningBolt.setVisualOnly(true);
+            lightningBolt.setPos(target.getX(), target.getY(), target.getZ());
             level.addFreshEntity(lightningBolt);
-            count++;
         }
 
-        itemStack.set(ModComponents.charge, currentCharges - 1);
-        player.displayClientMessage(Component.literal("Struck " + count + " entities"), false);
-        player.getCooldowns().addCooldown(itemStack, coolDown);
+        itemStack.set(ModComponents.CHARGE, currentCharges - 1);
+        player.displayClientMessage(Component.literal("Struck " + targets.size() + " entities"), false);
+        player.getCooldowns().addCooldown(itemStack, COOLDOWN_TICKS);
         return InteractionResult.SUCCESS;
     }
 
     @Override
     public void appendHoverText(ItemStack itemStack, Item.TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
-        String currentCharges = String.valueOf(itemStack.getOrDefault(ModComponents.charge, 0));
+        String currentCharges = String.valueOf(itemStack.getOrDefault(ModComponents.CHARGE, 0));
         consumer.accept(Component.literal("Charge left: ").append(Component.literal(currentCharges).withStyle(ChatFormatting.DARK_AQUA)));
     }
 }

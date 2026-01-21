@@ -97,5 +97,194 @@
         "stream": true
       }
     ]
+  },
+  "frisbee": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/frisbee",
+        "stream": true
+      }
+    ]
+  },
+  "radiant": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/radiant",
+        "stream": true
+      }
+    ]
+  },
+  "beautiful_things": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/beautiful_things",
+        "stream": true
+      }
+    ]
+  },
+  "sparkle": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/sparkle",
+        "stream": true
+      }
+    ]
+  },
+  "release": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/release",
+        "stream": true
+      }
+    ]
+  },
+  "promise": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/promise",
+        "stream": true
+      }
+    ]
+  },
+  "flying": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/flying",
+        "stream": true
+      }
+    ]
+  },
+  "glisten": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/glisten",
+        "stream": true
+      }
+    ]
+  },
+  "particles": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/particles",
+        "stream": true
+      }
+    ]
+  },
+  "kagetsu": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/kagetsu",
+        "stream": true
+      }
+    ]
+  },
+  "remedy": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/remedy",
+        "stream": true
+      }
+    ]
+  },
+  "cute_swing": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/cute_swing",
+        "stream": true
+      }
+    ]
+  },
+  "mochie_fantasy": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/mochie_fantasy",
+        "stream": true
+      }
+    ]
+  },
+  "remember": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/remember",
+        "stream": true
+      }
+    ]
+  },
+  "skydive": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/skydive",
+        "stream": true
+      }
+    ]
+  },
+  "sky_garden": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/sky_garden",
+        "stream": true
+      }
+    ]
+  },
+  "igtl": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/igtl",
+        "stream": true
+      }
+    ]
+  },
+  "desire": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/desire",
+        "stream": true
+      }
+    ]
+  },
+  "again": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/again",
+        "stream": true
+      }
+    ]
+  },
+  "adventure": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/adventure",
+        "stream": true
+      }
+    ]
+  },
+  "wanderer": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "darkaddons:music/wanderer",
+        "stream": true
+      }
+    ]
   }
 }
