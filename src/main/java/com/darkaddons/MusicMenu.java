@@ -43,7 +43,9 @@ public class MusicMenu extends ChestMenu {
             handleMusicSwap(player, musicContainer, musicIndex, page);
             return;
         }
-        if (slotIndex == resetIndex) {
+        if (slotIndex == closeIndex) {
+            closeContainer(player);
+        } else if (slotIndex == resetIndex) {
             handleResetClick(player, musicContainer, page);
         } else if (slotIndex == previousPageIndex && page > 1) {
             MusicMenuManager.shiftPage(player, musicContainer, this, -1);

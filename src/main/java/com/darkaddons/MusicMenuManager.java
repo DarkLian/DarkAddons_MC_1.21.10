@@ -3,6 +3,7 @@ package com.darkaddons;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
@@ -20,14 +21,16 @@ import static com.darkaddons.item.MusicStick.getCurrentTrack;
 import static com.darkaddons.item.MusicStick.setCurrentTrack;
 
 public class MusicMenuManager {
-    public static final int resetIndex = 49;
-    public static final int nextPageIndex = 50;
     public static final int previousPageIndex = 48;
+    public static final int closeIndex = 49;
+    public static final int nextPageIndex = 50;
+    public static final int resetIndex = 53;
     public static final int defaultPage = 1;
     private static final ItemStack GLASS_PANE = createStaticItem(Items.GRAY_STAINED_GLASS_PANE, "", ChatFormatting.WHITE);
     private static final ItemStack NEXT_ARROW = createStaticItem(Items.ARROW, "Next page", ChatFormatting.GREEN);
     private static final ItemStack PREV_ARROW = createStaticItem(Items.ARROW, "Previous page", ChatFormatting.GREEN);
-    private static final ItemStack RESET_BARRIER = createStaticItem(Items.BARRIER, "Reset", ChatFormatting.RED);
+    private static final ItemStack CLOSE_BARRIER = createStaticItem(Items.BARRIER, "Close", ChatFormatting.RED);
+    private static final ItemStack RESET_REDSTONE_BLOCK = createStaticItem(Items.REDSTONE_BLOCK, "Reset", ChatFormatting.RED);
     private static final ItemLore SELECTED_LORE = new ItemLore(List.of(literal("Selected", ChatFormatting.GREEN)));
     private static final ItemLore UNSELECTED_LORE = new ItemLore(List.of(literal("Left-click to select", ChatFormatting.GREEN)));
     public static int pageCount;
@@ -88,7 +91,8 @@ public class MusicMenuManager {
             container.setItem(i * 9, GLASS_PANE);
             container.setItem(i * 9 + 8, GLASS_PANE);
         }
-        container.setItem(resetIndex, RESET_BARRIER);
+        container.setItem(closeIndex, CLOSE_BARRIER);
+        container.setItem(resetIndex, RESET_REDSTONE_BLOCK);
         container.setItem(previousPageIndex, (page > 1) ? PREV_ARROW : GLASS_PANE);
         container.setItem(nextPageIndex, (page < pageCount) ? NEXT_ARROW : GLASS_PANE);
     }
@@ -134,6 +138,12 @@ public class MusicMenuManager {
             swapMusic(musicIndex, player);
             refreshMusicMenu(player, page, container);
             player.displayClientMessage(Component.literal("Playing: ").withStyle(ChatFormatting.GREEN).append(Component.literal(getCurrentTrack()).withStyle(ChatFormatting.BLUE)), false);
+        }
+    }
+
+    public static void closeContainer(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.closeContainer();
         }
     }
 
