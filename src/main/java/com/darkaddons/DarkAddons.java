@@ -14,7 +14,6 @@ public class DarkAddons implements ModInitializer {
     public void onInitialize() {
         ModComponents.initialize();
         ModSounds.initialize();
-        MusicMenuManager.initializeMusicCache();
         ModItems.initialize();
     }
 }

@@ -3,6 +3,7 @@ package com.darkaddons;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -21,16 +22,18 @@ import static com.darkaddons.item.MusicStick.getCurrentTrack;
 import static com.darkaddons.item.MusicStick.setCurrentTrack;
 
 public class MusicMenuManager {
+    public static final int STATUS_INDEX = 4;
     public static final int PREVIOUS_PAGE_INDEX = 48;
     public static final int CLOSE_INDEX = 49;
     public static final int NEXT_PAGE_INDEX = 50;
     public static final int RESET_INDEX = 53;
     public static final int DEFAULT_PAGE = 1;
+    private static final ItemStack STATUS_DISPLAY = createStaticItem(Items.ENCHANTED_BOOK, "", ChatFormatting.WHITE);
     private static final ItemStack GLASS_PANE = createStaticItem(Items.GRAY_STAINED_GLASS_PANE, "", ChatFormatting.WHITE);
-    private static final ItemStack NEXT_ARROW = createStaticItem(Items.ARROW, "Next page", ChatFormatting.GREEN);
-    private static final ItemStack PREV_ARROW = createStaticItem(Items.ARROW, "Previous page", ChatFormatting.GREEN);
+    private static final ItemStack NEXT_ARROW = createStaticItem(Items.ARROW, "", ChatFormatting.WHITE);
+    private static final ItemStack PREV_ARROW = createStaticItem(Items.ARROW, "", ChatFormatting.WHITE);
     private static final ItemStack CLOSE_BARRIER = createStaticItem(Items.BARRIER, "Close", ChatFormatting.RED);
-    private static final ItemStack RESET_REDSTONE_BLOCK = createStaticItem(Items.REDSTONE_BLOCK, "Reset", ChatFormatting.RED);
+    private static final ItemStack RESET_REDSTONE_BLOCK = createStaticItem(Items.REDSTONE_BLOCK, "Reset Music", ChatFormatting.RED);
     private static final ItemLore SELECTED_LORE = new ItemLore(List.of(literal("Selected", ChatFormatting.GREEN)));
     private static final ItemLore UNSELECTED_LORE = new ItemLore(List.of(literal("Left-click to select", ChatFormatting.GREEN)));
     public static int pageCount;
@@ -60,8 +63,12 @@ public class MusicMenuManager {
     }
 
     // Return non italic colored component literal
-    private static Component literal(String text, ChatFormatting color) {
+    private static MutableComponent literal(String text, ChatFormatting color) {
         return Component.literal(text).withStyle(s -> s.withColor(color).withItalic(false));
+    }
+
+    private static MutableComponent literal(String text, ChatFormatting color1, ChatFormatting color2, boolean isFirst) {
+        return Component.literal(text).withStyle(s -> s.withColor(isFirst ? color1 : color2).withItalic(false));
     }
 
     private static ItemStack createStaticItem(Item item, String name, ChatFormatting color) {
@@ -91,10 +98,22 @@ public class MusicMenuManager {
             container.setItem(i * 9, GLASS_PANE);
             container.setItem(i * 9 + 8, GLASS_PANE);
         }
+        loadGuiItems(page);
+        container.setItem(STATUS_INDEX, STATUS_DISPLAY);
         container.setItem(CLOSE_INDEX, CLOSE_BARRIER);
         container.setItem(RESET_INDEX, RESET_REDSTONE_BLOCK);
         container.setItem(PREVIOUS_PAGE_INDEX, (page > 1) ? PREV_ARROW : GLASS_PANE);
         container.setItem(NEXT_PAGE_INDEX, (page < pageCount) ? NEXT_ARROW : GLASS_PANE);
+    }
+
+    private static void loadGuiItems(int page) {
+        MutableComponent status = literal("Currently Playing: ", ChatFormatting.GREEN)
+                .append(literal(getCurrentTrack(), ChatFormatting.RED, ChatFormatting.BLUE, getCurrentTrack().equals("None")));
+        MutableComponent nextPage = literal("Next Page (" + (page + 1) + "/" + pageCount + ") ->", ChatFormatting.GREEN);
+        MutableComponent prevPage = literal("<- Previous Page (" + (page - 1) + "/" + pageCount + ")", ChatFormatting.GREEN);
+        STATUS_DISPLAY.set(DataComponents.CUSTOM_NAME, status);
+        NEXT_ARROW.set(DataComponents.CUSTOM_NAME, nextPage);
+        PREV_ARROW.set(DataComponents.CUSTOM_NAME, prevPage);
     }
 
     public static void loadMusic(SimpleContainer container, int page, int pageMusicCount) {

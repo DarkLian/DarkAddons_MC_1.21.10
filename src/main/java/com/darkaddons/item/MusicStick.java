@@ -13,6 +13,7 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static com.darkaddons.ModSounds.getMusicCount;
@@ -36,12 +37,28 @@ public class MusicStick extends Item {
     @Override
     public @NotNull InteractionResult use(Level level, Player player, InteractionHand hand) {
         if (level.isClientSide()) return InteractionResult.PASS;
-        if (getPageMusicCount(DEFAULT_PAGE) == 0) {
-            player.displayClientMessage(Component.literal("Music stick is temporarily unavailable, please try again later.").withStyle(ChatFormatting.RED), false);
-            return InteractionResult.FAIL;
-        }
-        callDefaultMusicMenu(player);
-        return InteractionResult.SUCCESS;
+
+        player.displayClientMessage(Component.literal("Refreshing music cache...").withStyle(ChatFormatting.YELLOW), false);
+
+        new Thread(() -> {
+            try {
+                initializeMusicCache();
+                Thread.sleep(1500);
+                Objects.requireNonNull(level.getServer()).execute(() -> {
+                    if (getPageMusicCount(DEFAULT_PAGE) == 0) {
+                        player.displayClientMessage(Component.literal("Error: No music found!").withStyle(ChatFormatting.RED), false);
+                    } else {
+                        player.displayClientMessage(Component.literal("Cache Updated!").withStyle(ChatFormatting.GREEN), false);
+                        callDefaultMusicMenu(player);
+                    }
+                });
+
+            } catch (Exception e) {
+                DarkAddons.LOGGER.error("Failed to load music cache", e);
+                player.displayClientMessage(Component.literal("Critical error during loading.").withStyle(ChatFormatting.DARK_RED), false);
+            }
+        }).start();
+        return InteractionResult.PASS;
     }
 
     @Override
