@@ -43,14 +43,15 @@ public class MusicMenu extends ChestMenu {
             handleMusicSwap(player, musicContainer, musicIndex, page);
             return;
         }
-        if (slotIndex == CLOSE_INDEX) {
-            closeContainer(player);
-        } else if (slotIndex == RESET_INDEX) {
-            handleResetClick(player, musicContainer, page);
-        } else if (slotIndex == PREVIOUS_PAGE_INDEX && page > 1) {
-            MusicMenuManager.shiftPage(player, musicContainer, this, -1);
-        } else if (slotIndex == NEXT_PAGE_INDEX && page < pageCount) {
-            MusicMenuManager.shiftPage(player, musicContainer, this, 1);
+        switch (slotIndex) {
+            case CLOSE_INDEX -> closeContainer(player);
+            case RESET_INDEX -> handleResetClick(player, musicContainer, page);
+            case PREVIOUS_PAGE_INDEX -> {
+                if (page > 1) shiftPage(player, musicContainer, this, -1);
+            }
+            case NEXT_PAGE_INDEX -> {
+                if (page < pageCount) shiftPage(player, musicContainer, this, 1);
+            }
         }
     }
 
