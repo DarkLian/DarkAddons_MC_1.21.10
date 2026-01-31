@@ -5,6 +5,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
@@ -13,16 +14,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
-import net.minecraft.world.level.Level;
 
 import java.util.List;
 
 import static com.darkaddons.ModSounds.*;
-import static com.darkaddons.item.MusicStick.getCurrentTrack;
-import static com.darkaddons.item.MusicStick.setCurrentTrack;
+import static com.darkaddons.MusicLoopHandler.startTracking;
+import static com.darkaddons.MusicLoopHandler.stopTracking;
+import static com.darkaddons.item.MusicStick.*;
 
 public class MusicMenuManager {
     public static final int STATUS_INDEX = 4;
+    public static final int LOOP_INDEX = 45;
     public static final int PREVIOUS_PAGE_INDEX = 48;
     public static final int CLOSE_INDEX = 49;
     public static final int NEXT_PAGE_INDEX = 50;
@@ -30,12 +32,13 @@ public class MusicMenuManager {
     public static final int DEFAULT_PAGE = 1;
     private static final ItemStack STATUS_DISPLAY = createStaticItem(Items.ENCHANTED_BOOK, "", ChatFormatting.WHITE);
     private static final ItemStack GLASS_PANE = createStaticItem(Items.GRAY_STAINED_GLASS_PANE, "", ChatFormatting.WHITE);
+    private static final ItemStack LOOP_BUTTON = createStaticItem(Items.GOLD_INGOT, "", ChatFormatting.WHITE);
     private static final ItemStack NEXT_ARROW = createStaticItem(Items.ARROW, "", ChatFormatting.WHITE);
     private static final ItemStack PREV_ARROW = createStaticItem(Items.ARROW, "", ChatFormatting.WHITE);
     private static final ItemStack CLOSE_BARRIER = createStaticItem(Items.BARRIER, "Close", ChatFormatting.RED);
     private static final ItemStack RESET_REDSTONE_BLOCK = createStaticItem(Items.REDSTONE_BLOCK, "Reset Music", ChatFormatting.RED);
-    private static final ItemLore SELECTED_LORE = new ItemLore(List.of(literal("Selected", ChatFormatting.GREEN)));
-    private static final ItemLore UNSELECTED_LORE = new ItemLore(List.of(literal("Left-click to select", ChatFormatting.GREEN)));
+    private static final MutableComponent SELECTED_LORE = literal("Selected", ChatFormatting.GREEN);
+    private static final MutableComponent UNSELECTED_LORE = literal("Left-click to select", ChatFormatting.GREEN);
     public static int pageCount;
     private static ItemStack[] MUSIC_ITEM_CACHE;
 
@@ -84,7 +87,13 @@ public class MusicMenuManager {
         MUSIC_ITEM_CACHE = new ItemStack[count];
         for (int i = 0; i < count; i++) {
             ItemStack item = new ItemStack(getItem(i));
+            int d = getSoundDuration(i);
+            int minutes = d / 60;
+            int seconds = d % 60;
+            String length = String.format("%02dm %02ds", minutes, seconds);
+            ItemLore itemLore = new ItemLore(List.of(literal(length, ChatFormatting.GREEN)));
             item.set(DataComponents.CUSTOM_NAME, literal(getSoundName(i), ChatFormatting.BLUE));
+            item.set(DataComponents.LORE, itemLore);
             MUSIC_ITEM_CACHE[i] = item;
         }
     }
@@ -98,22 +107,26 @@ public class MusicMenuManager {
             container.setItem(i * 9, GLASS_PANE);
             container.setItem(i * 9 + 8, GLASS_PANE);
         }
-        loadGuiItems(page);
+        loadGuiItems(page, container);
+    }
+
+    private static void loadGuiItems(int page, SimpleContainer container) {
+        MutableComponent status = literal("Currently Playing: ", ChatFormatting.GREEN)
+                .append(literal(getCurrentTrack(), ChatFormatting.RED, ChatFormatting.BLUE, getCurrentTrack().equals("None")));
+        MutableComponent loopStatus = literal("Loop: ", ChatFormatting.GREEN)
+                .append(literal(isLooping() ? "Enabled" : "Disabled", ChatFormatting.YELLOW, ChatFormatting.RED, isLooping()));
+        MutableComponent nextPage = literal("Next Page (" + (page + 1) + "/" + pageCount + ") ->", ChatFormatting.GREEN);
+        MutableComponent prevPage = literal("<- Previous Page (" + (page - 1) + "/" + pageCount + ")", ChatFormatting.GREEN);
+        LOOP_BUTTON.set(DataComponents.CUSTOM_NAME, loopStatus);
+        STATUS_DISPLAY.set(DataComponents.CUSTOM_NAME, status);
+        NEXT_ARROW.set(DataComponents.CUSTOM_NAME, nextPage);
+        PREV_ARROW.set(DataComponents.CUSTOM_NAME, prevPage);
         container.setItem(STATUS_INDEX, STATUS_DISPLAY);
+        container.setItem(LOOP_INDEX, LOOP_BUTTON);
         container.setItem(CLOSE_INDEX, CLOSE_BARRIER);
         container.setItem(RESET_INDEX, RESET_REDSTONE_BLOCK);
         container.setItem(PREVIOUS_PAGE_INDEX, (page > 1) ? PREV_ARROW : GLASS_PANE);
         container.setItem(NEXT_PAGE_INDEX, (page < pageCount) ? NEXT_ARROW : GLASS_PANE);
-    }
-
-    private static void loadGuiItems(int page) {
-        MutableComponent status = literal("Currently Playing: ", ChatFormatting.GREEN)
-                .append(literal(getCurrentTrack(), ChatFormatting.RED, ChatFormatting.BLUE, getCurrentTrack().equals("None")));
-        MutableComponent nextPage = literal("Next Page (" + (page + 1) + "/" + pageCount + ") ->", ChatFormatting.GREEN);
-        MutableComponent prevPage = literal("<- Previous Page (" + (page - 1) + "/" + pageCount + ")", ChatFormatting.GREEN);
-        STATUS_DISPLAY.set(DataComponents.CUSTOM_NAME, status);
-        NEXT_ARROW.set(DataComponents.CUSTOM_NAME, nextPage);
-        PREV_ARROW.set(DataComponents.CUSTOM_NAME, prevPage);
     }
 
     public static void loadMusic(SimpleContainer container, int page, int pageMusicCount) {
@@ -122,7 +135,8 @@ public class MusicMenuManager {
             int musicIndex = i + 28 * (page - 1);
             boolean isSelected = getCurrentTrack().equals(getSoundName(musicIndex));
             ItemStack menuItem = MUSIC_ITEM_CACHE[musicIndex].copy();
-            menuItem.set(DataComponents.LORE, isSelected ? SELECTED_LORE : UNSELECTED_LORE);
+            ItemLore itemLore = menuItem.getOrDefault(DataComponents.LORE, null).withLineAdded(isSelected ? SELECTED_LORE : UNSELECTED_LORE);
+            menuItem.set(DataComponents.LORE, itemLore);
             menuItem.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, isSelected);
             container.setItem(getSlotIndex(i), menuItem);
         }
@@ -135,6 +149,7 @@ public class MusicMenuManager {
     }
 
     public static void handleResetClick(Player player, Container container, int page) {
+        stopTracking();
         DarkAddons.clientHelper.stopMusic();
         player.displayClientMessage(Component.literal("Reset Music").withStyle(ChatFormatting.RED), false);
         if (!getCurrentTrack().equals("None")) {
@@ -143,10 +158,15 @@ public class MusicMenuManager {
         }
     }
 
+    public static void handleLoopClick(Player player, Container container, int page) {
+        toggleLooping();
+        refreshMusicMenu(player, page, container);
+    }
+
     public static void swapMusic(int index, Player player) {
-        Level level = player.level();
         DarkAddons.clientHelper.stopMusic();
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), getSound(index), net.minecraft.sounds.SoundSource.RECORDS, 1.0f, 1.0f);
+        startTracking(player, index);
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), getSound(index), SoundSource.RECORDS, 1.0f, 1.0f);
     }
 
     public static void handleMusicSwap(Player player, Container container, int musicIndex, int page) {

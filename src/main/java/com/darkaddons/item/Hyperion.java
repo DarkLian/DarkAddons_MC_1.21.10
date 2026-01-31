@@ -4,12 +4,12 @@ import com.darkaddons.ModComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -64,7 +64,6 @@ public class Hyperion extends Item {
         if (hitResult.getType() == HitResult.Type.BLOCK) {
             Direction face = hitResult.getDirection();
             targetX += face.getStepX() * 0.3;
-            targetY += face.getStepY() * 0.3;
             targetZ += face.getStepZ() * 0.3;
         }
         BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos(targetX, targetY, targetZ);
@@ -75,14 +74,24 @@ public class Hyperion extends Item {
 
         player.teleportTo(targetX, targetY, targetZ);
 
+        if (level instanceof ServerLevel serverLevel) {
+            for (int i = -3; i <= 3; i++ ) {
+                double tempX = player.getX() + i;
+                serverLevel.sendParticles(ParticleTypes.EXPLOSION, tempX, player.getY(), player.getZ(), 5, 0, 0, 0, 0);
+            }
+
+            for (int i = -3; i <= 3; i++ ) {
+                double tempZ = player.getZ() + i;
+                serverLevel.sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(), tempZ, 5, 0, 0, 0, 0);
+            }
+
+            serverLevel.sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(), player.getZ(), 5, 0, 0, 0, 0);
+        }
+
         List<LivingEntity> targets = getNearByLivingEntities(level, player, ABILITY_RADIUS, LivingEntity.class);
         DamageSource damageSource = level.damageSources().magic();
         if (!targets.isEmpty()) {
             for (LivingEntity target : targets) {
-                LightningBolt lightningBolt = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
-                lightningBolt.setVisualOnly(true);
-                lightningBolt.setPos(target.getX(), target.getY(), target.getZ());
-                level.addFreshEntity(lightningBolt);
                 target.hurt(damageSource, DAMAGE_AMOUNT);
             }
             String enemyNoun = (targets.size() == 1) ? " enemy" : " enemies";

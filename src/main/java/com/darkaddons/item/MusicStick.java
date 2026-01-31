@@ -24,6 +24,7 @@ import static com.darkaddons.MusicMenuManager.*;
 public class MusicStick extends Item {
     private static final AtomicBoolean isCurrentlyLoading = new AtomicBoolean(false);
     private static String CURRENT_TRACK = "None";
+    private static boolean looping = false;
 
     public MusicStick(Properties properties) {
         super(properties);
@@ -36,6 +37,10 @@ public class MusicStick extends Item {
     public static void setCurrentTrack(String newTrack) {
         CURRENT_TRACK = newTrack;
     }
+
+    public static boolean isLooping() { return looping; }
+
+    public static void toggleLooping() { looping = !looping; }
 
     @Override
     public @NotNull InteractionResult use(Level level, Player player, InteractionHand hand) {
@@ -52,7 +57,6 @@ public class MusicStick extends Item {
             try {
                 long startTime = System.currentTimeMillis();
                 initializeMusicCache();
-                Thread.sleep(1500); // for testing
                 long dif = System.currentTimeMillis() - startTime;
                 Objects.requireNonNull(level.getServer()).execute(() -> {
                     try {
@@ -82,7 +86,9 @@ public class MusicStick extends Item {
     public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
         consumer.accept(Component.literal("Right-click to open music menu").withStyle(ChatFormatting.GREEN));
         consumer.accept(Component.literal("Music count: ").withStyle(ChatFormatting.GRAY).append(Component.literal(String.valueOf(getMusicCount())).withStyle(ChatFormatting.BLUE)));
-        if (DarkAddons.clientHelper.isShiftPressed())
+        if (DarkAddons.clientHelper.isShiftPressed()) {
             consumer.accept(Component.literal("Currently Playing: ").withStyle(ChatFormatting.GRAY).append(Component.literal(CURRENT_TRACK).withStyle((CURRENT_TRACK.equals("None")) ? ChatFormatting.RED : ChatFormatting.BLUE)));
+            consumer.accept(Component.literal("Loop: ").withStyle(ChatFormatting.GRAY).append(Component.literal(isLooping() ? "Enabled" : "Disabled").withStyle(isLooping() ? ChatFormatting.GREEN : ChatFormatting.RED)));
+        }
     }
 }
