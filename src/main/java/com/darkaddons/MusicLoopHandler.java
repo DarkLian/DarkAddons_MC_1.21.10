@@ -4,7 +4,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 
-import static com.darkaddons.ModSounds.*;
+import static com.darkaddons.ModSounds.getSound;
+import static com.darkaddons.ModSounds.getSoundDurationTick;
 import static com.darkaddons.item.MusicStick.*;
 
 public class MusicLoopHandler {

@@ -52,7 +52,7 @@ public class ModSounds {
             new TrackEntry(ModSounds.RISING_SUN, "Rising Sun", Items.GOLDEN_APPLE, 163),
             new TrackEntry(ModSounds.FANTASY, "Sowyn - Fantasy", Items.TNT, 204),
             new TrackEntry(ModSounds.WORLD, "PIKASONIC & Dankidz - World", Items.BEDROCK, 224),
-            new TrackEntry(ModSounds.ICE_CREAM_SANDWICH, "sacrofiz x Castlewater x Doffbeat - Ice Cream Sandwich", Items.SNOWBALL, 200),
+            new TrackEntry(ModSounds.ICE_CREAM_SANDWICH, "Sacrofiz x Castlewater x Doffbeat - Ice Cream Sandwich", Items.SNOWBALL, 200),
             new TrackEntry(ModSounds.LEVITATE, "Sowyn - Levitate", Items.WHITE_BANNER, 178),
             new TrackEntry(ModSounds.LANTERNS, "Xomu - Lanterns", Items.LANTERN, 231),
             new TrackEntry(ModSounds.ZAYTON, "木白 - Zayton (泉州)", Items.WATER_BUCKET, 257),
@@ -97,19 +97,29 @@ public class ModSounds {
         return null;
     }
 
+    //for init
     public static String getSoundName(int index) {
         TrackEntry entry = musicEntries[index];
         return isInValidIndex(index) ? null : entry.name();
     }
 
+    // for init
     public static Item getItem(int index) {
         TrackEntry entry = musicEntries[index];
         return isInValidIndex(index) ? null : entry.icon();
     }
 
+    //for init
     public static Integer getSoundDuration(int index) {
         TrackEntry entry = musicEntries[index];
         return isInValidIndex(index) ? null : entry.duration();
+    }
+
+    public static Integer getSoundDuration(String currentTrack) {
+        for (int i = 0; i < TOTAL_MUSIC_COUNT; i++) {
+            if (musicEntries[i].name().equals(currentTrack)) return musicEntries[i].duration();
+        }
+        return null;
     }
 
     public static Integer getSoundDurationTick(String currentTrack) {

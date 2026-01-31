@@ -18,6 +18,8 @@ import net.minecraft.world.item.component.ItemLore;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.darkaddons.ModFilter.FilterMode;
+import static com.darkaddons.ModFilter.applyFilter;
 import static com.darkaddons.ModSounds.*;
 import static com.darkaddons.MusicLoopHandler.startTracking;
 import static com.darkaddons.MusicLoopHandler.stopTracking;
@@ -27,6 +29,7 @@ public class MusicMenuManager {
     public static final int STATUS_INDEX = 4;
     public static final int EMPTY_INDEX = 10;
     public static final int LOOP_INDEX = 45;
+    public static final int FILTER_INDEX = 46;
     public static final int PREVIOUS_PAGE_INDEX = 48;
     public static final int CLOSE_INDEX = 49;
     public static final int NEXT_PAGE_INDEX = 50;
@@ -36,22 +39,36 @@ public class MusicMenuManager {
     private static final ItemStack GLASS_PANE = createStaticItem(Items.GRAY_STAINED_GLASS_PANE, "", ChatFormatting.WHITE);
     private static final ItemStack EMPTY_FEATHER = createStaticItem(Items.FEATHER, "No music found", ChatFormatting.RED);
     private static final ItemStack LOOP_BUTTON = createStaticItem(Items.GOLD_INGOT, "", ChatFormatting.WHITE);
+    private static final ItemStack FILTER_HOPPER = createStaticItem(Items.HOPPER, "Music Filter", ChatFormatting.GREEN);
     private static final ItemStack NEXT_ARROW = createStaticItem(Items.ARROW, "", ChatFormatting.WHITE);
     private static final ItemStack PREV_ARROW = createStaticItem(Items.ARROW, "", ChatFormatting.WHITE);
     private static final ItemStack CLOSE_BARRIER = createStaticItem(Items.BARRIER, "Close", ChatFormatting.RED);
     private static final ItemStack RESET_REDSTONE_BLOCK = createStaticItem(Items.REDSTONE_BLOCK, "Reset Music", ChatFormatting.RED);
-    private static final MutableComponent SELECTED_LORE = literal("Selected", ChatFormatting.GREEN);
-    private static final MutableComponent UNSELECTED_LORE = literal("Left-click to select", ChatFormatting.GREEN);
+    private static final MutableComponent SELECTED_LORE = literal("Selected!", ChatFormatting.RED);
+    private static final MutableComponent UNSELECTED_LORE = literal("Click to select!", ChatFormatting.GREEN);
+    private static final MutableComponent EMPTY_LINE = literal("", ChatFormatting.WHITE);
+    private static final List<ItemStack> MUSIC_ITEM_CACHE = new ArrayList<>();
+    private static final List<ItemStack> FILTERED_MUSIC_ITEM = new ArrayList<>();
     private static int pageCount;
-    private static final ArrayList<ItemStack> MUSIC_ITEM_CACHE = new ArrayList<>();
-    private static final ArrayList<ItemStack> FILTERED_MUSIC_ITEM = new ArrayList<>();
+
+    public static int getPageCount() {
+        return pageCount;
+    }
 
     public static void setPageCount(int count) {
         pageCount = count;
     }
 
-    public static int getPageCount() {
-        return pageCount;
+    public static List<ItemStack> getFilteredList() {
+        return FILTERED_MUSIC_ITEM;
+    }
+
+    public static List<ItemStack> getMusicCache() {
+        List<ItemStack> musicCache = new ArrayList<>();
+        for (ItemStack itemStack : MUSIC_ITEM_CACHE) {
+            musicCache.add(itemStack.copy());
+        }
+        return musicCache;
     }
 
     public static int getPageMusicCount(int page) {
@@ -64,7 +81,7 @@ public class MusicMenuManager {
     public static Integer getLastMusicSlotIndex(int page) {
         int a = getPageMusicCount(page);
         if (a == 0) return null;
-        return (a - 1) + 10 + 2 * ((a - 1)/ 7);
+        return (a - 1) + 10 + 2 * ((a - 1) / 7);
     }
 
     // Return non italic colored component literal
@@ -99,11 +116,7 @@ public class MusicMenuManager {
             item.set(ModComponents.SOUND_NAME, soundName);
             MUSIC_ITEM_CACHE.add(item);
         }
-
-        //set to default
-        FILTERED_MUSIC_ITEM.clear();
-        FILTERED_MUSIC_ITEM.addAll(MUSIC_ITEM_CACHE);
-        setPageCount(Math.max((FILTERED_MUSIC_ITEM.size() + 27) / 28, 1));
+        applyFilter(FilterMode.DEFAULT);
     }
 
     public static void setDefaultMusicMenu(SimpleContainer container, int page) {
@@ -126,12 +139,25 @@ public class MusicMenuManager {
                 .append(literal(isLooping() ? "Enabled" : "Disabled", ChatFormatting.YELLOW, ChatFormatting.RED, isLooping()));
         MutableComponent nextPage = literal("Next Page (" + (page + 1) + "/" + getPageCount() + ") ->", ChatFormatting.GREEN);
         MutableComponent prevPage = literal("<- Previous Page (" + (page - 1) + "/" + getPageCount() + ")", ChatFormatting.GREEN);
+        ItemLore filterLore = ItemLore.EMPTY.withLineAdded(EMPTY_LINE);
+        for (FilterMode filterMode : FilterMode.values()) {
+            boolean isSelected = filterMode == getCurrentMode();
+            if (isSelected) {
+                filterLore = filterLore.withLineAdded(literal("▹ " + filterMode.getDisplayName(), ChatFormatting.DARK_AQUA));
+            } else {
+                filterLore = filterLore.withLineAdded(literal(filterMode.getDisplayName(), ChatFormatting.GRAY));
+            }
+        }
+        filterLore = filterLore.withLineAdded(EMPTY_LINE);
+        filterLore = filterLore.withLineAdded(literal("Click to switch filter!", ChatFormatting.GREEN));
+        FILTER_HOPPER.set(DataComponents.LORE, filterLore);
         LOOP_BUTTON.set(DataComponents.CUSTOM_NAME, loopStatus);
         STATUS_DISPLAY.set(DataComponents.CUSTOM_NAME, status);
         NEXT_ARROW.set(DataComponents.CUSTOM_NAME, nextPage);
         PREV_ARROW.set(DataComponents.CUSTOM_NAME, prevPage);
         container.setItem(STATUS_INDEX, STATUS_DISPLAY);
         container.setItem(LOOP_INDEX, LOOP_BUTTON);
+        container.setItem(FILTER_INDEX, FILTER_HOPPER);
         container.setItem(CLOSE_INDEX, CLOSE_BARRIER);
         container.setItem(RESET_INDEX, RESET_REDSTONE_BLOCK);
         container.setItem(PREVIOUS_PAGE_INDEX, (page > 1) ? PREV_ARROW : GLASS_PANE);
@@ -165,7 +191,7 @@ public class MusicMenuManager {
     public static void handleResetClick(Player player, Container container, int page) {
         stopTracking();
         DarkAddons.clientHelper.stopMusic();
-        player.displayClientMessage(Component.literal("Reset Music").withStyle(ChatFormatting.RED), false);
+        player.displayClientMessage(Component.literal("Reset Music!").withStyle(ChatFormatting.RED), false);
         if (!(getCurrentTrack() == null)) {
             setCurrentTrack(null);
             refreshMusicMenu(player, page, container);
@@ -175,6 +201,14 @@ public class MusicMenuManager {
     public static void handleLoopClick(Player player, Container container, int page) {
         toggleLooping();
         refreshMusicMenu(player, page, container);
+    }
+
+    public static void handleFilterClick(Player player, Container container, MusicMenu musicMenu) {
+        setCurrentMode(getCurrentMode().next());
+        applyFilter(getCurrentMode());
+        musicMenu.setPage(DEFAULT_PAGE);
+        musicMenu.setLastMusicIndex(DEFAULT_PAGE);
+        refreshMusicMenu(player, DEFAULT_PAGE, container);
     }
 
     public static void swapMusic(String soundName, Player player) {
@@ -187,13 +221,14 @@ public class MusicMenuManager {
         String newSoundName = container.getItem(slotIndex).getOrDefault(ModComponents.SOUND_NAME, "");
         boolean isSelected = newSoundName.equals(getCurrentTrack());
         if (isSelected) {
-            player.displayClientMessage(Component.literal("Music is already selected").withStyle(ChatFormatting.RED), false);
+            player.displayClientMessage(Component.literal("Music is already selected!").withStyle(ChatFormatting.RED), false);
         } else {
             setCurrentTrack(newSoundName);
             swapMusic(newSoundName, player);
             refreshMusicMenu(player, page, container);
             assert getCurrentTrack() != null;
-            player.displayClientMessage(Component.literal("Playing: ").withStyle(ChatFormatting.GREEN).append(Component.literal(getCurrentTrack()).withStyle(ChatFormatting.BLUE)), false);
+            player.displayClientMessage(Component.literal("Playing: ").withStyle(ChatFormatting.GREEN)
+                    .append(Component.literal(getCurrentTrack()).withStyle(ChatFormatting.BLUE)), false);
         }
     }
 

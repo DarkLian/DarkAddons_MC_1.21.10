@@ -1,4 +1,1 @@
-First open after each launch -> initialize music cache, show time took, initialized set to true
-Later use initialized music cache by copying to create new list that stores filtered music list
-
-
+Move SoundDuration from ModSounds to DataComponents (for direct access just like sound name, avoid searching in musicEntries)

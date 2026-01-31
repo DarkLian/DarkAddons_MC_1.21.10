@@ -75,12 +75,12 @@ public class Hyperion extends Item {
         player.teleportTo(targetX, targetY, targetZ);
 
         if (level instanceof ServerLevel serverLevel) {
-            for (int i = -3; i <= 3; i++ ) {
+            for (int i = -3; i <= 3; i++) {
                 double tempX = player.getX() + i;
                 serverLevel.sendParticles(ParticleTypes.EXPLOSION, tempX, player.getY(), player.getZ(), 5, 0, 0, 0, 0);
             }
 
-            for (int i = -3; i <= 3; i++ ) {
+            for (int i = -3; i <= 3; i++) {
                 double tempZ = player.getZ() + i;
                 serverLevel.sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(), tempZ, 5, 0, 0, 0, 0);
             }

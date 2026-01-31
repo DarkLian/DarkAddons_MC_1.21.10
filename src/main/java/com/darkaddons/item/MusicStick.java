@@ -19,8 +19,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import static com.darkaddons.ModFilter.FilterMode;
 import static com.darkaddons.ModSounds.getTotalMusicCount;
-import static com.darkaddons.MusicMenuManager.*;
+import static com.darkaddons.MusicMenuManager.callDefaultMusicMenu;
+import static com.darkaddons.MusicMenuManager.initializeMusicCache;
 
 public class MusicStick extends Item {
     private static final AtomicBoolean isCurrentlyLoading = new AtomicBoolean(false);
@@ -28,6 +30,7 @@ public class MusicStick extends Item {
     private static String CURRENT_TRACK = null;
     private static boolean looping = false;
     private static boolean initialized = false;
+    private static FilterMode currentMode = FilterMode.DEFAULT;
 
     public MusicStick(Properties properties) {
         super(properties);
@@ -42,9 +45,13 @@ public class MusicStick extends Item {
         CURRENT_TRACK = newTrack;
     }
 
-    public static boolean isLooping() { return looping; }
+    public static boolean isLooping() {
+        return looping;
+    }
 
-    public static void toggleLooping() { looping = !looping; }
+    public static void toggleLooping() {
+        looping = !looping;
+    }
 
     public static boolean isInitialized() {
         return initialized;
@@ -52,6 +59,14 @@ public class MusicStick extends Item {
 
     public static void setInitialized(boolean initialized) {
         MusicStick.initialized = initialized;
+    }
+
+    public static FilterMode getCurrentMode() {
+        return currentMode;
+    }
+
+    public static void setCurrentMode(FilterMode newMode) {
+        currentMode = newMode;
     }
 
     @Override
@@ -98,7 +113,7 @@ public class MusicStick extends Item {
 
     @Override
     public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
-        consumer.accept(Component.literal("Right-click to open music menu").withStyle(ChatFormatting.GREEN));
+        consumer.accept(Component.literal("Right-click to open music menu!").withStyle(ChatFormatting.GREEN));
         consumer.accept(Component.literal("Music count: ").withStyle(ChatFormatting.GRAY).append(Component.literal(String.valueOf(getTotalMusicCount())).withStyle(ChatFormatting.BLUE)));
         if (DarkAddons.clientHelper.isShiftPressed()) {
             boolean isPlaying = CURRENT_TRACK != null;
