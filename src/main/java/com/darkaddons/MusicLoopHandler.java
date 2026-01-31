@@ -1,5 +1,6 @@
 package com.darkaddons;
 
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 
@@ -9,8 +10,10 @@ import static com.darkaddons.item.MusicStick.*;
 public class MusicLoopHandler {
     private static Long endTime = null;
 
-    public static void startTracking(Player player, int musicIndex) {
-        endTime = player.level().getGameTime() + getSoundDurationTick(musicIndex);
+    public static void startTracking(Player player, String soundName) {
+        Integer soundDurationTick = getSoundDurationTick(soundName);
+        if (soundDurationTick == null) return;
+        endTime = player.level().getGameTime() + soundDurationTick;
     }
 
     public static void stopTracking() {
@@ -18,16 +21,21 @@ public class MusicLoopHandler {
     }
 
     public static void onTick(Player player) {
-        if (endTime == null) return;
+        if (endTime == null || getCurrentTrack() == null) return;
         if (player.level().getGameTime() >= endTime) {
             if (isLooping()) {
+                SoundEvent soundEvent = getSound(getCurrentTrack());
+                if (soundEvent == null) {
+                    stopTracking();
+                    setCurrentTrack(null);
+                    return;
+                }
                 DarkAddons.clientHelper.stopMusic();
-                int index = getMusicIndex(getCurrentTrack());
-                startTracking(player, index);
-                player.level().playSound(null, player.getX(), player.getY(), player.getZ(), getSound(index), SoundSource.RECORDS, 1.0f, 1.0f);
+                startTracking(player, getCurrentTrack());
+                player.level().playSound(null, player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.RECORDS, 1.0f, 1.0f);
             } else {
                 stopTracking();
-                setCurrentTrack("None");
+                setCurrentTrack(null);
             }
         }
     }

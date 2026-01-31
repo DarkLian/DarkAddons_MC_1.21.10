@@ -1,3 +1,4 @@
-Reset -> Close Button
-Move reset button to the bottom right slot and uses redstone block
+First open after each launch -> initialize music cache, show time took, initialized set to true
+Later use initialized music cache by copying to create new list that stores filtered music list
+
 

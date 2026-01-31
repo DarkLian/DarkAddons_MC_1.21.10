@@ -14,6 +14,7 @@ public class ModComponents {
 
     public static final DataComponentType<Integer> CHARGE = register("charge", builder -> builder.persistent(Codec.INT));
     public static final DataComponentType<Integer> DURABILITY = register("durability", builder -> builder.persistent(Codec.INT));
+    public static final DataComponentType<String> SOUND_NAME = register("sound_name", builder -> builder.persistent(Codec.STRING));
 
     private static <T> DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
         return Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ResourceLocation.fromNamespaceAndPath(MOD_ID, name), builderOperator.apply(DataComponentType.builder()).build());

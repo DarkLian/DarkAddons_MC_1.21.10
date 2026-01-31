@@ -79,7 +79,7 @@ public class ModSounds {
             new TrackEntry(ModSounds.WANDERER, "YUMMI - Wanderer", Items.GOLDEN_HELMET, 206)
     };
 
-    private static final int MUSIC_COUNT = musicEntries.length;
+    private static final int TOTAL_MUSIC_COUNT = musicEntries.length;
 
     private static SoundEvent registerSound(String name) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
@@ -90,49 +90,41 @@ public class ModSounds {
         DarkAddons.LOGGER.info("Registering Sounds for DarkAddons");
     }
 
-    public static SoundEvent getSound(int index) {
-        if (isInValidIndex(index)) throw new IllegalArgumentException("Index out of bound");
-        TrackEntry entry = musicEntries[index];
-        return entry.sound();
+    public static SoundEvent getSound(String currentTrack) {
+        for (int i = 0; i < TOTAL_MUSIC_COUNT; i++) {
+            if (musicEntries[i].name().equals(currentTrack)) return musicEntries[i].sound();
+        }
+        return null;
     }
 
     public static String getSoundName(int index) {
-        if (isInValidIndex(index)) throw new IllegalArgumentException("Index out of bound");
         TrackEntry entry = musicEntries[index];
-        return entry.name();
+        return isInValidIndex(index) ? null : entry.name();
     }
 
     public static Item getItem(int index) {
-        if (isInValidIndex(index)) throw new IllegalArgumentException("Index out of bound");
         TrackEntry entry = musicEntries[index];
-        return entry.icon();
+        return isInValidIndex(index) ? null : entry.icon();
     }
 
-    public static int getSoundDuration(int index) {
-        if (isInValidIndex(index)) throw new IllegalArgumentException("Index out of bound");
+    public static Integer getSoundDuration(int index) {
         TrackEntry entry = musicEntries[index];
-        return entry.duration();
+        return isInValidIndex(index) ? null : entry.duration();
     }
 
-    public static int getSoundDurationTick(int index) {
-        if (isInValidIndex(index)) throw new IllegalArgumentException("Index out of bound");
-        TrackEntry entry = musicEntries[index];
-        return entry.duration() * 20;
+    public static Integer getSoundDurationTick(String currentTrack) {
+        for (int i = 0; i < TOTAL_MUSIC_COUNT; i++) {
+            if (musicEntries[i].name().equals(currentTrack)) return musicEntries[i].duration() * 20;
+        }
+        return null;
     }
 
     private static boolean isInValidIndex(int index) {
-        return index < 0 || index >= getMusicCount();
+        return index < 0 || index >= getTotalMusicCount();
     }
 
-    public static int getMusicCount() {
-        return MUSIC_COUNT;
-    }
-
-    public static int getMusicIndex(String currentTrack) {
-        for (int i = 0; i < MUSIC_COUNT; i++) {
-            if (musicEntries[i].name().equals(currentTrack)) return i;
-        }
-        throw new IllegalArgumentException("No corresponding track found");
+    public static int getTotalMusicCount() {
+        return TOTAL_MUSIC_COUNT;
     }
 
     public record TrackEntry(SoundEvent sound, String name, Item icon, int duration) {
