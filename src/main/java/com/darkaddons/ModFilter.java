@@ -32,6 +32,7 @@ public class ModFilter {
         if (rule != null) {
             items.sort(rule);
         }
+
         filteredList.addAll(items);
         setPageCount(Math.max((filteredList.size() + 27) / 28, 1));
     }

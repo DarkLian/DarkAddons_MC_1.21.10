@@ -115,7 +115,7 @@ public class MusicMenuManager {
 
             ItemStack item = new ItemStack(icon);
             String length = String.format("%02dm %02ds", duration / 60, duration % 60);
-            ItemLore itemLore = new ItemLore(List.of(literal(length, ChatFormatting.GREEN)));
+            ItemLore itemLore = new ItemLore(List.of(literal("Duration: ", ChatFormatting.GRAY).append(literal(length, ChatFormatting.GREEN))));
             item.set(DataComponents.CUSTOM_NAME, literal(soundName, ChatFormatting.BLUE));
             item.set(DataComponents.LORE, itemLore);
             item.set(ModComponents.SOUND_NAME, soundName);
@@ -125,7 +125,7 @@ public class MusicMenuManager {
         return failedIndices;
     }
 
-    public static void setDefaultMusicMenu(SimpleContainer container, int page) {
+    public static void createMusicMenu(SimpleContainer container, int page) {
         for (int i = 0; i < 9; i++) {
             container.setItem(i, GLASS_PANE);
             container.setItem(45 + i, GLASS_PANE);
@@ -134,10 +134,12 @@ public class MusicMenuManager {
             container.setItem(i * 9, GLASS_PANE);
             container.setItem(i * 9 + 8, GLASS_PANE);
         }
-        loadGuiItems(page, container);
+        applyFilterAndSort();
+        loadGuiItems(container, page);
+        loadMusic(container, page);
     }
 
-    private static void loadGuiItems(int page, SimpleContainer container) {
+    private static void loadGuiItems(SimpleContainer container, int page) {
         int totalPages = getPageCount();
         boolean isPlaying = getCurrentTrack() != null;
         SortMode currentMode = getCurrentMode();
@@ -168,16 +170,17 @@ public class MusicMenuManager {
         sLines.add(literal("Right-Click to go backwards!", ChatFormatting.WHITE));
         sLines.add(literal("Click to switch filter!", ChatFormatting.GREEN));
 
-        ItemLore searchLore = new ItemLore(List.of(
-                EMPTY_LINE,
-                literal("Filtered: ", ChatFormatting.GRAY).append(literal(currentSearchQuery, ChatFormatting.GREEN)),
-                EMPTY_LINE,
-                literal("Right-Click to clear!", ChatFormatting.WHITE),
-                literal("Click to edit filter!", ChatFormatting.YELLOW)
-        ));
+        List<Component> searchLore = new ArrayList<>();
+        if (!currentSearchQuery.isEmpty()) {
+            searchLore.add(EMPTY_LINE);
+            searchLore.add(literal("Filtered: ", ChatFormatting.GRAY).append(literal(currentSearchQuery, ChatFormatting.GREEN)));
+            searchLore.add(EMPTY_LINE);
+        }
+        searchLore.add(literal("Right-Click to clear!", ChatFormatting.WHITE));
+        searchLore.add(literal("Click to edit filter!", ChatFormatting.YELLOW));
 
         SORT_HOPPER.set(DataComponents.LORE, new ItemLore(sLines));
-        FILTER_SIGN.set(DataComponents.LORE, searchLore);
+        FILTER_SIGN.set(DataComponents.LORE, new ItemLore(searchLore));
         NEXT_ARROW.set(DataComponents.LORE, navigationLore);
         PREV_ARROW.set(DataComponents.LORE, navigationLore);
         LOOP_BUTTON.set(DataComponents.CUSTOM_NAME, loopStatus);
@@ -211,10 +214,8 @@ public class MusicMenuManager {
     }
 
     private static void buildPage(SimpleContainer container, int page) {
-        applyFilterAndSort();
         container.clearContent();
-        setDefaultMusicMenu(container, page);
-        loadMusic(container, page);
+        createMusicMenu(container, page);
     }
 
     public static void handleResetClick(Player player, Container container, int page) {
@@ -244,7 +245,7 @@ public class MusicMenuManager {
         if (button == 0) {
             setSearching(true);
             closeContainer(player);
-            player.displayClientMessage(Component.literal("Type your search in chat and press Enter!").withStyle(ChatFormatting.YELLOW), false);
+            player.displayClientMessage(Component.literal("Type the name of the music you want to search in chat and press Enter!").withStyle(ChatFormatting.YELLOW), false);
             DarkAddons.clientHelper.openChatBox();
         } else if (button == 1) {
             setCurrentSearchQuery("");
@@ -269,9 +270,8 @@ public class MusicMenuManager {
             setCurrentTrack(newSoundName);
             swapMusic(newSoundName, player);
             refreshMusicMenu(player, page, container);
-            assert getCurrentTrack() != null;
             player.displayClientMessage(Component.literal("Playing: ").withStyle(ChatFormatting.GREEN)
-                    .append(Component.literal(getCurrentTrack()).withStyle(ChatFormatting.BLUE)), false);
+                    .append(Component.literal(newSoundName).withStyle(ChatFormatting.BLUE)), false);
         }
     }
 
@@ -293,7 +293,7 @@ public class MusicMenuManager {
         refreshMusicMenu(player, newPage, container);
     }
 
-    public static void callDefaultMusicMenu(Player player) {
+    public static void callMusicMenu(Player player) {
         SimpleContainer container = new SimpleContainer(54);
         buildPage(container, DEFAULT_PAGE);
         player.openMenu(new SimpleMenuProvider((containerId, playerInventory, p) -> new MusicMenu(containerId, playerInventory, container, DEFAULT_PAGE), Component.literal("Music Menu")));

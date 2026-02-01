@@ -96,7 +96,7 @@ public class MusicStick extends Item {
             setSearching(false);
         }
         if (isInitialized()) {
-            callDefaultMusicMenu(player);
+            callMusicMenu(player);
             return InteractionResult.PASS;
         }
 
@@ -129,7 +129,7 @@ public class MusicStick extends Item {
                     player.displayClientMessage(Component.literal("Time took: " + dif + "ms").withStyle(ChatFormatting.GREEN), false);
                     setInitialized(true);
                     isCurrentlyLoading.set(false);
-                    callDefaultMusicMenu(player);
+                    callMusicMenu(player);
                 });
             } catch (Exception e) {
                 DarkAddons.LOGGER.error("Failed to load music", e);

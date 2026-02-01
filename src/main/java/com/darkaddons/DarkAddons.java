@@ -32,7 +32,7 @@ public class DarkAddons implements ModInitializer {
                 String input = message.signedContent();
                 setCurrentSearchQuery(input);
                 setSearching(false);
-                player.level().getServer().execute(() -> MusicMenuManager.callDefaultMusicMenu(player));
+                player.level().getServer().execute(() -> MusicMenuManager.callMusicMenu(player));
                 return false;
             }
             return true;
