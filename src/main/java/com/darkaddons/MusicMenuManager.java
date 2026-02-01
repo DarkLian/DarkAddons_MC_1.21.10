@@ -11,6 +11,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -41,8 +42,8 @@ public class MusicMenuManager {
     private static final ItemStack EMPTY_FEATHER = createStaticItem(Items.FEATHER, "No music found", ChatFormatting.RED);
     private static final ItemStack LOOP_BUTTON = createStaticItem(Items.GOLD_INGOT, "", ChatFormatting.WHITE);
     private static final ItemStack FILTER_HOPPER = createStaticItem(Items.HOPPER, "Music Filter", ChatFormatting.GREEN);
-    private static final ItemStack NEXT_ARROW = createStaticItem(Items.ARROW, "", ChatFormatting.WHITE);
-    private static final ItemStack PREV_ARROW = createStaticItem(Items.ARROW, "", ChatFormatting.WHITE);
+    private static final ItemStack NEXT_ARROW = createStaticItem(Items.ARROW, "Next Page", ChatFormatting.GREEN);
+    private static final ItemStack PREV_ARROW = createStaticItem(Items.ARROW, "Previous Page", ChatFormatting.GREEN);
     private static final ItemStack CLOSE_BARRIER = createStaticItem(Items.BARRIER, "Close", ChatFormatting.RED);
     private static final ItemStack RESET_REDSTONE_BLOCK = createStaticItem(Items.REDSTONE_BLOCK, "Reset Music", ChatFormatting.RED);
     private static final MutableComponent SELECTED_LORE = literal("Selected!", ChatFormatting.RED);
@@ -142,36 +143,47 @@ public class MusicMenuManager {
     }
 
     private static void loadGuiItems(int page, SimpleContainer container) {
+        int totalPages = getPageCount();
         boolean isPlaying = getCurrentTrack() != null;
+        FilterMode currentMode = getCurrentMode();
+
         MutableComponent status = literal("Currently Playing: ", ChatFormatting.GREEN)
                 .append(literal(isPlaying ? getCurrentTrack() : "None", ChatFormatting.BLUE, ChatFormatting.RED, isPlaying));
         MutableComponent loopStatus = literal("Loop: ", ChatFormatting.GREEN)
                 .append(literal(isLooping() ? "Enabled" : "Disabled", ChatFormatting.YELLOW, ChatFormatting.RED, isLooping()));
-        MutableComponent nextPage = literal("Next Page (" + (page + 1) + "/" + getPageCount() + ") ->", ChatFormatting.GREEN);
-        MutableComponent prevPage = literal("<- Previous Page (" + (page - 1) + "/" + getPageCount() + ")", ChatFormatting.GREEN);
-        ItemLore filterLore = ItemLore.EMPTY.withLineAdded(EMPTY_LINE);
-        for (FilterMode filterMode : FilterMode.values()) {
-            boolean isSelected = filterMode == getCurrentMode();
-            if (isSelected) {
-                filterLore = filterLore.withLineAdded(literal("▹ " + filterMode.getDisplayName(), ChatFormatting.DARK_AQUA));
-            } else {
-                filterLore = filterLore.withLineAdded(literal(filterMode.getDisplayName(), ChatFormatting.GRAY));
-            }
+
+        MutableComponent pageInfo = literal("(" + page + "/" + totalPages + ")", ChatFormatting.GRAY);
+        ItemLore navigationLore = new ItemLore(List.of(
+                pageInfo,
+                EMPTY_LINE,
+                literal("Right-Click to skip!", ChatFormatting.WHITE),
+                literal("Click to turn page!", ChatFormatting.YELLOW)
+        ));
+
+        List<Component> fLines = new ArrayList<>();
+        fLines.add(EMPTY_LINE);
+        for (FilterMode mode : FilterMode.values()) {
+            boolean selected = (mode == currentMode);
+            String prefix = selected ? "▶ " : "";
+            ChatFormatting color = selected ? ChatFormatting.WHITE : ChatFormatting.GRAY;
+            fLines.add(literal(prefix + mode.getDisplayName(), color));
         }
-        filterLore = filterLore.withLineAdded(EMPTY_LINE);
-        filterLore = filterLore.withLineAdded(literal("Click to switch filter!", ChatFormatting.GREEN));
-        FILTER_HOPPER.set(DataComponents.LORE, filterLore);
+        fLines.add(EMPTY_LINE);
+        fLines.add(literal("Right-Click to go backwards!", ChatFormatting.WHITE));
+        fLines.add(literal("Click to switch filter!", ChatFormatting.GREEN));
+
+        FILTER_HOPPER.set(DataComponents.LORE, new ItemLore(fLines));
+        NEXT_ARROW.set(DataComponents.LORE, navigationLore);
+        PREV_ARROW.set(DataComponents.LORE, navigationLore);
         LOOP_BUTTON.set(DataComponents.CUSTOM_NAME, loopStatus);
         STATUS_DISPLAY.set(DataComponents.CUSTOM_NAME, status);
-        NEXT_ARROW.set(DataComponents.CUSTOM_NAME, nextPage);
-        PREV_ARROW.set(DataComponents.CUSTOM_NAME, prevPage);
         container.setItem(STATUS_INDEX, STATUS_DISPLAY);
         container.setItem(LOOP_INDEX, LOOP_BUTTON);
         container.setItem(FILTER_INDEX, FILTER_HOPPER);
         container.setItem(CLOSE_INDEX, CLOSE_BARRIER);
         container.setItem(RESET_INDEX, RESET_REDSTONE_BLOCK);
         container.setItem(PREVIOUS_PAGE_INDEX, (page > 1) ? PREV_ARROW : GLASS_PANE);
-        container.setItem(NEXT_PAGE_INDEX, (page < getPageCount()) ? NEXT_ARROW : GLASS_PANE);
+        container.setItem(NEXT_PAGE_INDEX, (page < totalPages) ? NEXT_ARROW : GLASS_PANE);
     }
 
     public static void loadMusic(SimpleContainer container, int page) {
@@ -213,12 +225,15 @@ public class MusicMenuManager {
         refreshMusicMenu(player, page, container);
     }
 
-    public static void handleFilterClick(Player player, Container container, MusicMenu musicMenu) {
-        setCurrentMode(getCurrentMode().next());
-        applyFilter(getCurrentMode());
-        musicMenu.setPage(DEFAULT_PAGE);
-        musicMenu.setLastMusicIndex(DEFAULT_PAGE);
-        refreshMusicMenu(player, DEFAULT_PAGE, container);
+    public static void handleFilterClick(Player player, Container container, MusicMenu musicMenu, ClickType clickType, int button) {
+        if (clickType == ClickType.PICKUP) {
+            if (button == 0) setCurrentMode(getCurrentMode().next());
+            else if (button == 1) setCurrentMode(getCurrentMode().prev());
+            applyFilter(getCurrentMode());
+            musicMenu.setPage(DEFAULT_PAGE);
+            musicMenu.setLastMusicIndex(DEFAULT_PAGE);
+            refreshMusicMenu(player, DEFAULT_PAGE, container);
+        }
     }
 
     public static void swapMusic(String soundName, Player player) {
@@ -248,11 +263,18 @@ public class MusicMenuManager {
         }
     }
 
-    public static void shiftPage(Player player, Container container, MusicMenu menu, int page, int delta) {
-        int newPage = page + delta;
-        menu.setPage(newPage);
-        menu.setLastMusicIndex(newPage);
-        refreshMusicMenu(player, newPage, container);
+    public static void shiftPage(Player player, Container container, MusicMenu menu, int page, int delta, ClickType clickType, int button) {
+        if (clickType == ClickType.PICKUP) {
+            int newPage;
+            if (button == 0) {
+                newPage = page + delta;
+            } else if (button == 1) {
+                newPage = (delta == 1) ? getPageCount() : DEFAULT_PAGE;
+            } else return;
+            menu.setPage(newPage);
+            menu.setLastMusicIndex(newPage);
+            refreshMusicMenu(player, newPage, container);
+        }
     }
 
     public static void callDefaultMusicMenu(Player player) {

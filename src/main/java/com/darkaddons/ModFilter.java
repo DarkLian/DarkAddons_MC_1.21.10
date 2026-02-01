@@ -40,6 +40,7 @@ public class ModFilter {
         }
 
         public FilterMode next() { return MODES[(ordinal() + 1) % MODES.length]; }
+        public FilterMode prev() { return (ordinal() == 0) ? MODES[MODES.length - 1] : MODES[ordinal() - 1]; }
         public String getDisplayName() { return this.displayName; }
         public Comparator<ItemStack> getSortRule() { return this.sortRule; }
     }

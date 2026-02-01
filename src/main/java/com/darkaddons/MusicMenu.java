@@ -39,12 +39,12 @@ public class MusicMenu extends ChestMenu {
             case CLOSE_INDEX -> closeContainer(player);
             case RESET_INDEX -> handleResetClick(player, musicContainer, page);
             case LOOP_INDEX -> handleLoopClick(player, musicContainer, page);
-            case FILTER_INDEX -> handleFilterClick(player, musicContainer, this);
+            case FILTER_INDEX -> handleFilterClick(player, musicContainer, this, clickType, button);
             case PREVIOUS_PAGE_INDEX -> {
-                if (page > 1) shiftPage(player, musicContainer, this, page, -1);
+                if (page > 1) shiftPage(player, musicContainer, this, page, -1, clickType, button);
             }
             case NEXT_PAGE_INDEX -> {
-                if (page < getPageCount()) shiftPage(player, musicContainer, this, page, 1);
+                if (page < getPageCount()) shiftPage(player, musicContainer, this, page, 1, clickType, button);
             }
         }
         if (lastMusicIndex == null) return;
