@@ -50,7 +50,7 @@ public class ModSounds {
             new TrackEntry(ModSounds.REGALITY, "Aurelleah - Regality", Items.NETHER_STAR, 228),
             new TrackEntry(ModSounds.VILLAGE_THEME, "Banana - Village Theme", Items.VILLAGER_SPAWN_EGG, 222),
             new TrackEntry(ModSounds.RISING_SUN, "Rising Sun", Items.GOLDEN_APPLE, 163),
-            new TrackEntry(ModSounds.FANTASY, "Sowyn - Fantasy", Items.TNT, 204),
+            new TrackEntry(ModSounds.FANTASY, "Sowyn - Fantasy", Items.GREEN_BANNER, 204),
             new TrackEntry(ModSounds.WORLD, "PIKASONIC & Dankidz - World", Items.BEDROCK, 224),
             new TrackEntry(ModSounds.ICE_CREAM_SANDWICH, "Sacrofiz x Castlewater x Doffbeat - Ice Cream Sandwich", Items.SNOWBALL, 200),
             new TrackEntry(ModSounds.LEVITATE, "Sowyn - Levitate", Items.WHITE_BANNER, 178),
@@ -76,7 +76,7 @@ public class ModSounds {
             new TrackEntry(ModSounds.DESIRE, "Sowyn - Desire", Items.GOLDEN_CARROT, 207),
             new TrackEntry(ModSounds.AGAIN, "Sowyn-Again-_IjFPwIDsraI_", Items.BIRCH_SIGN, 193),
             new TrackEntry(ModSounds.ADVENTURE, "Swempke - Adventure", Items.END_PORTAL_FRAME, 186),
-            new TrackEntry(ModSounds.WANDERER, "YUMMI - Wanderer", Items.GOLDEN_HELMET, 206)
+            new TrackEntry(ModSounds.WANDERER, "YUMMI - Wanderer" , Items.GOLDEN_HELMET, 206)
     };
 
     private static final int TOTAL_MUSIC_COUNT = musicEntries.length;
@@ -95,6 +95,11 @@ public class ModSounds {
             if (musicEntries[i].name().equals(currentTrack)) return musicEntries[i].sound();
         }
         return null;
+    }
+
+    public static SoundEvent getSound(int index) {
+        TrackEntry entry = musicEntries[index];
+        return isInValidIndex(index) ? null : entry.sound();
     }
 
     //for init
@@ -123,10 +128,8 @@ public class ModSounds {
     }
 
     public static Integer getSoundDurationTick(String currentTrack) {
-        for (int i = 0; i < TOTAL_MUSIC_COUNT; i++) {
-            if (musicEntries[i].name().equals(currentTrack)) return musicEntries[i].duration() * 20;
-        }
-        return null;
+        Integer duration = getSoundDuration(currentTrack);
+        return (duration == null) ? null : duration * 20;
     }
 
     private static boolean isInValidIndex(int index) {
@@ -137,6 +140,6 @@ public class ModSounds {
         return TOTAL_MUSIC_COUNT;
     }
 
-    public record TrackEntry(SoundEvent sound, String name, Item icon, int duration) {
+    public record TrackEntry(SoundEvent sound, String name, Item icon, Integer duration) {
     }
 }

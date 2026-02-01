@@ -5,6 +5,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -100,23 +101,32 @@ public class MusicMenuManager {
         return itemStack;
     }
 
-    public static void initializeMusicCache() {
+    public static List<Integer> initializeMusicCache() {
+        List<Integer> failedIndices = new ArrayList<>();
+        MUSIC_ITEM_CACHE.clear();
+
         for (int i = 0; i < getTotalMusicCount(); i++) {
             Item icon = getItem(i);
             Integer duration = getSoundDuration(i);
             String soundName = getSoundName(i);
-            if (icon == null || duration == null || soundName == null) continue;
+            SoundEvent soundEvent = getSound(i);
+            // If the data of a music is missing, it won't be stored to MUSIC_ITEM_CACHE, and will not be used at all
+            if (icon == null || duration == null || soundName == null || soundEvent == null) {
+                failedIndices.add(i);
+                continue;
+            }
+
             ItemStack item = new ItemStack(icon);
-            int minutes = duration / 60;
-            int seconds = duration % 60;
-            String length = String.format("%02dm %02ds", minutes, seconds);
+            String length = String.format("%02dm %02ds", duration / 60, duration % 60);
             ItemLore itemLore = new ItemLore(List.of(literal(length, ChatFormatting.GREEN)));
             item.set(DataComponents.CUSTOM_NAME, literal(soundName, ChatFormatting.BLUE));
             item.set(DataComponents.LORE, itemLore);
             item.set(ModComponents.SOUND_NAME, soundName);
+
             MUSIC_ITEM_CACHE.add(item);
         }
         applyFilter(FilterMode.DEFAULT);
+        return failedIndices;
     }
 
     public static void setDefaultMusicMenu(SimpleContainer container, int page) {
