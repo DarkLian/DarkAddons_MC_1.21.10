@@ -30,9 +30,4 @@ public class utilities {
         Vec3 endPos = startPos.add(lookAngle.x * z, lookAngle.y * z, lookAngle.z * z);
         return level.clip(new ClipContext(startPos, endPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
     }
-
-    public static String upperCaseFirst(String string) {
-        if (string.isEmpty()) return string;
-        return Character.toUpperCase(string.charAt(0)) + string.substring(1);
-    }
 }

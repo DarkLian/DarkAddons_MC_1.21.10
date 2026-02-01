@@ -34,17 +34,19 @@ public class MusicMenu extends ChestMenu {
     @Override
     public void clicked(int slotIndex, int button, ClickType clickType, Player player) {
         if (player.level().isClientSide()) return;
-        if (slotIndex < 0 || slotIndex >= 54 || clickType == ClickType.PICKUP_ALL) return;
+        if (clickType != ClickType.PICKUP) return;
+        if (slotIndex < 0 || slotIndex >= 54) return;
         switch (slotIndex) {
             case CLOSE_INDEX -> closeContainer(player);
             case RESET_INDEX -> handleResetClick(player, musicContainer, page);
             case LOOP_INDEX -> handleLoopClick(player, musicContainer, page);
-            case FILTER_INDEX -> handleFilterClick(player, musicContainer, this, clickType, button);
+            case SORT_INDEX -> handleSortClick(player, musicContainer, this, button);
+            case FILTER_INDEX -> handleFilterClick(player, musicContainer, this, button);
             case PREVIOUS_PAGE_INDEX -> {
-                if (page > 1) shiftPage(player, musicContainer, this, page, -1, clickType, button);
+                if (page > 1) shiftPage(player, musicContainer, this, page, -1, button);
             }
             case NEXT_PAGE_INDEX -> {
-                if (page < getPageCount()) shiftPage(player, musicContainer, this, page, 1, clickType, button);
+                if (page < getPageCount()) shiftPage(player, musicContainer, this, page, 1, button);
             }
         }
         if (lastMusicIndex == null) return;

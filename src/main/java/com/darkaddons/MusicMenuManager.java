@@ -11,7 +11,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -20,8 +19,7 @@ import net.minecraft.world.item.component.ItemLore;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.darkaddons.ModFilter.FilterMode;
-import static com.darkaddons.ModFilter.applyFilter;
+import static com.darkaddons.ModFilter.*;
 import static com.darkaddons.ModSounds.*;
 import static com.darkaddons.MusicLoopHandler.startTracking;
 import static com.darkaddons.MusicLoopHandler.stopTracking;
@@ -31,7 +29,8 @@ public class MusicMenuManager {
     public static final int STATUS_INDEX = 4;
     public static final int EMPTY_INDEX = 10;
     public static final int LOOP_INDEX = 45;
-    public static final int FILTER_INDEX = 46;
+    public static final int SORT_INDEX = 46;
+    public static final int FILTER_INDEX = 47;
     public static final int PREVIOUS_PAGE_INDEX = 48;
     public static final int CLOSE_INDEX = 49;
     public static final int NEXT_PAGE_INDEX = 50;
@@ -41,7 +40,8 @@ public class MusicMenuManager {
     private static final ItemStack GLASS_PANE = createStaticItem(Items.GRAY_STAINED_GLASS_PANE, "", ChatFormatting.WHITE);
     private static final ItemStack EMPTY_FEATHER = createStaticItem(Items.FEATHER, "No music found", ChatFormatting.RED);
     private static final ItemStack LOOP_BUTTON = createStaticItem(Items.GOLD_INGOT, "", ChatFormatting.WHITE);
-    private static final ItemStack FILTER_HOPPER = createStaticItem(Items.HOPPER, "Music Filter", ChatFormatting.GREEN);
+    private static final ItemStack SORT_HOPPER = createStaticItem(Items.HOPPER, "Sort", ChatFormatting.GREEN);
+    private static final ItemStack FILTER_SIGN = createStaticItem(Items.OAK_SIGN, "Search", ChatFormatting.GREEN);
     private static final ItemStack NEXT_ARROW = createStaticItem(Items.ARROW, "Next Page", ChatFormatting.GREEN);
     private static final ItemStack PREV_ARROW = createStaticItem(Items.ARROW, "Previous Page", ChatFormatting.GREEN);
     private static final ItemStack CLOSE_BARRIER = createStaticItem(Items.BARRIER, "Close", ChatFormatting.RED);
@@ -66,11 +66,7 @@ public class MusicMenuManager {
     }
 
     public static List<ItemStack> getMusicCache() {
-        List<ItemStack> musicCache = new ArrayList<>();
-        for (ItemStack itemStack : MUSIC_ITEM_CACHE) {
-            musicCache.add(itemStack.copy());
-        }
-        return musicCache;
+        return new ArrayList<>(MUSIC_ITEM_CACHE);
     }
 
     public static int getPageMusicCount(int page) {
@@ -126,7 +122,6 @@ public class MusicMenuManager {
 
             MUSIC_ITEM_CACHE.add(item);
         }
-        applyFilter(FilterMode.DEFAULT);
         return failedIndices;
     }
 
@@ -145,7 +140,8 @@ public class MusicMenuManager {
     private static void loadGuiItems(int page, SimpleContainer container) {
         int totalPages = getPageCount();
         boolean isPlaying = getCurrentTrack() != null;
-        FilterMode currentMode = getCurrentMode();
+        SortMode currentMode = getCurrentMode();
+        String currentSearchQuery = getCurrentSearchQuery();
 
         MutableComponent status = literal("Currently Playing: ", ChatFormatting.GREEN)
                 .append(literal(isPlaying ? getCurrentTrack() : "None", ChatFormatting.BLUE, ChatFormatting.RED, isPlaying));
@@ -160,26 +156,36 @@ public class MusicMenuManager {
                 literal("Click to turn page!", ChatFormatting.YELLOW)
         ));
 
-        List<Component> fLines = new ArrayList<>();
-        fLines.add(EMPTY_LINE);
-        for (FilterMode mode : FilterMode.values()) {
+        List<Component> sLines = new ArrayList<>();
+        sLines.add(EMPTY_LINE);
+        for (SortMode mode : SortMode.values()) {
             boolean selected = (mode == currentMode);
             String prefix = selected ? "▶ " : "";
             ChatFormatting color = selected ? ChatFormatting.WHITE : ChatFormatting.GRAY;
-            fLines.add(literal(prefix + mode.getDisplayName(), color));
+            sLines.add(literal(prefix + mode.getDisplayName(), color));
         }
-        fLines.add(EMPTY_LINE);
-        fLines.add(literal("Right-Click to go backwards!", ChatFormatting.WHITE));
-        fLines.add(literal("Click to switch filter!", ChatFormatting.GREEN));
+        sLines.add(EMPTY_LINE);
+        sLines.add(literal("Right-Click to go backwards!", ChatFormatting.WHITE));
+        sLines.add(literal("Click to switch filter!", ChatFormatting.GREEN));
 
-        FILTER_HOPPER.set(DataComponents.LORE, new ItemLore(fLines));
+        ItemLore searchLore = new ItemLore(List.of(
+                EMPTY_LINE,
+                literal("Filtered: ", ChatFormatting.GRAY).append(literal(currentSearchQuery, ChatFormatting.GREEN)),
+                EMPTY_LINE,
+                literal("Right-Click to clear!", ChatFormatting.WHITE),
+                literal("Click to edit filter!", ChatFormatting.YELLOW)
+        ));
+
+        SORT_HOPPER.set(DataComponents.LORE, new ItemLore(sLines));
+        FILTER_SIGN.set(DataComponents.LORE, searchLore);
         NEXT_ARROW.set(DataComponents.LORE, navigationLore);
         PREV_ARROW.set(DataComponents.LORE, navigationLore);
         LOOP_BUTTON.set(DataComponents.CUSTOM_NAME, loopStatus);
         STATUS_DISPLAY.set(DataComponents.CUSTOM_NAME, status);
         container.setItem(STATUS_INDEX, STATUS_DISPLAY);
         container.setItem(LOOP_INDEX, LOOP_BUTTON);
-        container.setItem(FILTER_INDEX, FILTER_HOPPER);
+        container.setItem(SORT_INDEX, SORT_HOPPER);
+        container.setItem(FILTER_INDEX, FILTER_SIGN);
         container.setItem(CLOSE_INDEX, CLOSE_BARRIER);
         container.setItem(RESET_INDEX, RESET_REDSTONE_BLOCK);
         container.setItem(PREVIOUS_PAGE_INDEX, (page > 1) ? PREV_ARROW : GLASS_PANE);
@@ -205,6 +211,7 @@ public class MusicMenuManager {
     }
 
     private static void buildPage(SimpleContainer container, int page) {
+        applyFilterAndSort();
         container.clearContent();
         setDefaultMusicMenu(container, page);
         loadMusic(container, page);
@@ -225,11 +232,22 @@ public class MusicMenuManager {
         refreshMusicMenu(player, page, container);
     }
 
-    public static void handleFilterClick(Player player, Container container, MusicMenu musicMenu, ClickType clickType, int button) {
-        if (clickType == ClickType.PICKUP) {
-            if (button == 0) setCurrentMode(getCurrentMode().next());
-            else if (button == 1) setCurrentMode(getCurrentMode().prev());
-            applyFilter(getCurrentMode());
+    public static void handleSortClick(Player player, Container container, MusicMenu musicMenu, int button) {
+        if (button == 0) setCurrentMode(getCurrentMode().next());
+        else if (button == 1) setCurrentMode(getCurrentMode().prev());
+        musicMenu.setPage(DEFAULT_PAGE);
+        musicMenu.setLastMusicIndex(DEFAULT_PAGE);
+        refreshMusicMenu(player, DEFAULT_PAGE, container);
+    }
+
+    public static void handleFilterClick(Player player, Container container, MusicMenu musicMenu, int button) {
+        if (button == 0) {
+            setSearching(true);
+            closeContainer(player);
+            player.displayClientMessage(Component.literal("Type your search in chat and press Enter!").withStyle(ChatFormatting.YELLOW), false);
+            DarkAddons.clientHelper.openChatBox();
+        } else if (button == 1) {
+            setCurrentSearchQuery("");
             musicMenu.setPage(DEFAULT_PAGE);
             musicMenu.setLastMusicIndex(DEFAULT_PAGE);
             refreshMusicMenu(player, DEFAULT_PAGE, container);
@@ -263,18 +281,16 @@ public class MusicMenuManager {
         }
     }
 
-    public static void shiftPage(Player player, Container container, MusicMenu menu, int page, int delta, ClickType clickType, int button) {
-        if (clickType == ClickType.PICKUP) {
-            int newPage;
-            if (button == 0) {
-                newPage = page + delta;
-            } else if (button == 1) {
-                newPage = (delta == 1) ? getPageCount() : DEFAULT_PAGE;
-            } else return;
-            menu.setPage(newPage);
-            menu.setLastMusicIndex(newPage);
-            refreshMusicMenu(player, newPage, container);
-        }
+    public static void shiftPage(Player player, Container container, MusicMenu menu, int page, int delta, int button) {
+        int newPage;
+        if (button == 0) {
+            newPage = page + delta;
+        } else if (button == 1) {
+            newPage = (delta == 1) ? getPageCount() : DEFAULT_PAGE;
+        } else return;
+        menu.setPage(newPage);
+        menu.setLastMusicIndex(newPage);
+        refreshMusicMenu(player, newPage, container);
     }
 
     public static void callDefaultMusicMenu(Player player) {

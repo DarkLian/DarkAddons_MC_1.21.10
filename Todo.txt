@@ -1,1 +1,0 @@
-Move SoundDuration from ModSounds to DataComponents (for direct access just like sound name, avoid searching in musicEntries)
