@@ -107,7 +107,9 @@ public class MusicMenuManager {
             Integer duration = getSoundDuration(i);
             String soundName = getSoundName(i);
             SoundEvent soundEvent = getSound(i);
+
             // If the data of a music is missing, it won't be stored to MUSIC_ITEM_CACHE, and will not be used at all
+            // Just basic null checking, if the .ogg file is missing, it will still be added but will play silence
             if (icon == null || duration == null || soundName == null || soundEvent == null) {
                 failedIndices.add(i);
                 continue;
@@ -223,7 +225,6 @@ public class MusicMenuManager {
         container.clearContent();
         applyFilterAndSort();
         musicMenu.setPage(page);
-        musicMenu.setLastMusicIndex(page);
         createMusicMenu(container, page);
     }
 
@@ -231,10 +232,8 @@ public class MusicMenuManager {
         stopTracking();
         DarkAddons.clientHelper.stopMusic();
         player.displayClientMessage(Component.literal("Reset Music!").withStyle(ChatFormatting.RED), false);
-        if (!(getCurrentTrack() == null)) {
-            setCurrentTrack(null);
-            refreshMusicMenu(player, page, container, musicMenu);
-        }
+        setCurrentTrack(null);
+        refreshMusicMenu(player, page, container, musicMenu);
     }
 
     public static void handleLoopClick(Player player, Container container, int page, MusicMenu musicMenu) {
@@ -274,10 +273,10 @@ public class MusicMenuManager {
         } else {
             setCurrentTrack(newSoundName);
             swapMusic(newSoundName, player);
-            refreshMusicMenu(player, page, container, musicMenu);
             player.displayClientMessage(Component.literal("Playing: ").withStyle(ChatFormatting.GREEN)
                     .append(Component.literal(newSoundName).withStyle(ChatFormatting.BLUE)), false);
         }
+        refreshMusicMenu(player, page, container, musicMenu);
     }
 
     public static void closeContainer(Player player) {

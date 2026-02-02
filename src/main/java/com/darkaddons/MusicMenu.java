@@ -14,21 +14,15 @@ import static com.darkaddons.MusicMenuManager.*;
 public class MusicMenu extends ChestMenu {
     private final Container musicContainer;
     private int page;
-    private Integer lastMusicIndex;
 
     public MusicMenu(int id, Inventory inv, Container container, int page) {
         super(MenuType.GENERIC_9x6, id, inv, container, 6);
         this.page = page;
-        this.lastMusicIndex = getLastMusicSlotIndex(this.page);
         this.musicContainer = container;
     }
 
     public void setPage(int x) {
         this.page = x;
-    }
-
-    public void setLastMusicIndex(int page) {
-        this.lastMusicIndex = getLastMusicSlotIndex(page);
     }
 
     @Override
@@ -51,6 +45,7 @@ public class MusicMenu extends ChestMenu {
             }
         }
 
+        Integer lastMusicIndex = getLastMusicSlotIndex(page);
         if (lastMusicIndex != null && slotIndex >= 10 && slotIndex <= lastMusicIndex) {
             if (slotIndex % 9 != 0 && slotIndex % 9 != 8) {
                 handleMusicSwap(player, musicContainer, slotIndex, page, this);
