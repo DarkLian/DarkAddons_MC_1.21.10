@@ -127,7 +127,7 @@ public class MusicMenuManager {
         return failedIndices;
     }
 
-    public static void createMusicMenu(SimpleContainer container, int page) {
+    private static void createMusicMenu(SimpleContainer container, int page) {
         for (int i = 0; i < 9; i++) {
             container.setItem(i, GLASS_PANE);
             container.setItem(45 + i, GLASS_PANE);
@@ -203,7 +203,7 @@ public class MusicMenuManager {
         container.setItem(NEXT_PAGE_INDEX, (page < totalPages) ? NEXT_ARROW : GLASS_PANE);
     }
 
-    public static void loadMusic(SimpleContainer container, int page) {
+    private static void loadMusic(SimpleContainer container, int page) {
         int pageMusicCount = getPageMusicCount(page);
         if (pageMusicCount == 0) {
             container.setItem(EMPTY_INDEX, EMPTY_FEATHER);
@@ -259,7 +259,7 @@ public class MusicMenuManager {
         }
     }
 
-    public static void swapMusic(String soundName, Player player) {
+    private static void swapMusic(String soundName, Player player) {
         DarkAddons.clientHelper.stopMusic();
         startTracking(player, soundName);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), getSound(soundName), SoundSource.RECORDS, 1.0f, 1.0f);
@@ -304,7 +304,7 @@ public class MusicMenuManager {
         }, Component.literal("Music Menu")));
     }
 
-    public static void refreshMusicMenu(Player player, int page, Container container, MusicMenu musicMenu) {
+    private static void refreshMusicMenu(Player player, int page, Container container, MusicMenu musicMenu) {
         if (container instanceof SimpleContainer simple && player.containerMenu instanceof MusicMenu menu) {
             buildPage(simple, page, musicMenu);
             menu.broadcastChanges();
