@@ -8,18 +8,17 @@ import java.util.Objects;
 
 import static com.darkaddons.ModSounds.getSoundDuration;
 import static com.darkaddons.MusicMenuManager.*;
-import static com.darkaddons.item.MusicStick.getCurrentMode;
-import static com.darkaddons.item.MusicStick.getCurrentSearchQuery;
+import static com.darkaddons.item.MusicStick.*;
 
 public class ModFilter {
 
     public static void applyFilterAndSort() {
         String searchQuery = getCurrentSearchQuery();
+        String currentTrack = getCurrentTrack();
         SortMode mode = getCurrentMode();
+        Comparator<ItemStack> rule = mode.getSortRule();
         List<ItemStack> filteredList = getFilteredList();
         List<ItemStack> items = getMusicCache();
-        filteredList.clear();
-        Comparator<ItemStack> rule = mode.getSortRule();
 
         if (!searchQuery.isEmpty()) {
             String lowerQuery = searchQuery.toLowerCase();
@@ -33,6 +32,21 @@ public class ModFilter {
             items.sort(rule);
         }
 
+        if (currentTrack != null) {
+            ItemStack temp = ItemStack.EMPTY;
+            for (ItemStack s : items) {
+                if (s.getOrDefault(ModComponents.SOUND_NAME, "").equals(currentTrack)) {
+                    temp = s;
+                    break;
+                }
+            }
+            if (!temp.isEmpty()) {
+                items.remove(temp);
+                items.addFirst(temp);
+            }
+        }
+
+        filteredList.clear();
         filteredList.addAll(items);
         setPageCount(Math.max((filteredList.size() + 27) / 28, 1));
     }

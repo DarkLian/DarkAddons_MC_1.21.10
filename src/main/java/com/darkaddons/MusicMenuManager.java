@@ -134,7 +134,6 @@ public class MusicMenuManager {
             container.setItem(i * 9, GLASS_PANE);
             container.setItem(i * 9 + 8, GLASS_PANE);
         }
-        applyFilterAndSort();
         loadGuiItems(container, page);
         loadMusic(container, page);
     }
@@ -147,8 +146,14 @@ public class MusicMenuManager {
 
         MutableComponent status = literal("Currently Playing: ", ChatFormatting.GREEN)
                 .append(literal(isPlaying ? getCurrentTrack() : "None", ChatFormatting.BLUE, ChatFormatting.RED, isPlaying));
+
         MutableComponent loopStatus = literal("Loop: ", ChatFormatting.GREEN)
                 .append(literal(isLooping() ? "Enabled" : "Disabled", ChatFormatting.YELLOW, ChatFormatting.RED, isLooping()));
+        MutableComponent loopInfo = literal(isLooping() ? "Click to disable Loop!" : "Click to enable Loop!", ChatFormatting.GREEN);
+        ItemLore loopLore = new ItemLore(List.of(
+                EMPTY_LINE,
+                loopInfo
+        ));
 
         MutableComponent pageInfo = literal("(" + page + "/" + totalPages + ")", ChatFormatting.GRAY);
         ItemLore navigationLore = new ItemLore(List.of(
@@ -171,14 +176,15 @@ public class MusicMenuManager {
         sLines.add(literal("Click to switch filter!", ChatFormatting.GREEN));
 
         List<Component> searchLore = new ArrayList<>();
+        searchLore.add(EMPTY_LINE);
         if (!currentSearchQuery.isEmpty()) {
-            searchLore.add(EMPTY_LINE);
             searchLore.add(literal("Filtered: ", ChatFormatting.GRAY).append(literal(currentSearchQuery, ChatFormatting.GREEN)));
             searchLore.add(EMPTY_LINE);
         }
         searchLore.add(literal("Right-Click to clear!", ChatFormatting.WHITE));
         searchLore.add(literal("Click to edit filter!", ChatFormatting.YELLOW));
 
+        LOOP_BUTTON.set(DataComponents.LORE, loopLore);
         SORT_HOPPER.set(DataComponents.LORE, new ItemLore(sLines));
         FILTER_SIGN.set(DataComponents.LORE, new ItemLore(searchLore));
         NEXT_ARROW.set(DataComponents.LORE, navigationLore);
@@ -213,32 +219,33 @@ public class MusicMenuManager {
         }
     }
 
-    private static void buildPage(SimpleContainer container, int page) {
+    private static void buildPage(SimpleContainer container, int page, MusicMenu musicMenu) {
         container.clearContent();
+        applyFilterAndSort();
+        musicMenu.setPage(page);
+        musicMenu.setLastMusicIndex(page);
         createMusicMenu(container, page);
     }
 
-    public static void handleResetClick(Player player, Container container, int page) {
+    public static void handleResetClick(Player player, Container container, int page, MusicMenu musicMenu) {
         stopTracking();
         DarkAddons.clientHelper.stopMusic();
         player.displayClientMessage(Component.literal("Reset Music!").withStyle(ChatFormatting.RED), false);
         if (!(getCurrentTrack() == null)) {
             setCurrentTrack(null);
-            refreshMusicMenu(player, page, container);
+            refreshMusicMenu(player, page, container, musicMenu);
         }
     }
 
-    public static void handleLoopClick(Player player, Container container, int page) {
+    public static void handleLoopClick(Player player, Container container, int page, MusicMenu musicMenu) {
         toggleLooping();
-        refreshMusicMenu(player, page, container);
+        refreshMusicMenu(player, page, container, musicMenu);
     }
 
     public static void handleSortClick(Player player, Container container, MusicMenu musicMenu, int button) {
         if (button == 0) setCurrentMode(getCurrentMode().next());
         else if (button == 1) setCurrentMode(getCurrentMode().prev());
-        musicMenu.setPage(DEFAULT_PAGE);
-        musicMenu.setLastMusicIndex(DEFAULT_PAGE);
-        refreshMusicMenu(player, DEFAULT_PAGE, container);
+        refreshMusicMenu(player, DEFAULT_PAGE, container, musicMenu);
     }
 
     public static void handleFilterClick(Player player, Container container, MusicMenu musicMenu, int button) {
@@ -249,9 +256,7 @@ public class MusicMenuManager {
             DarkAddons.clientHelper.openChatBox();
         } else if (button == 1) {
             setCurrentSearchQuery("");
-            musicMenu.setPage(DEFAULT_PAGE);
-            musicMenu.setLastMusicIndex(DEFAULT_PAGE);
-            refreshMusicMenu(player, DEFAULT_PAGE, container);
+            refreshMusicMenu(player, DEFAULT_PAGE, container, musicMenu);
         }
     }
 
@@ -261,7 +266,7 @@ public class MusicMenuManager {
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), getSound(soundName), SoundSource.RECORDS, 1.0f, 1.0f);
     }
 
-    public static void handleMusicSwap(Player player, Container container, int slotIndex, int page) {
+    public static void handleMusicSwap(Player player, Container container, int slotIndex, int page, MusicMenu musicMenu) {
         String newSoundName = container.getItem(slotIndex).getOrDefault(ModComponents.SOUND_NAME, "");
         boolean isSelected = newSoundName.equals(getCurrentTrack());
         if (isSelected) {
@@ -269,7 +274,7 @@ public class MusicMenuManager {
         } else {
             setCurrentTrack(newSoundName);
             swapMusic(newSoundName, player);
-            refreshMusicMenu(player, page, container);
+            refreshMusicMenu(player, page, container, musicMenu);
             player.displayClientMessage(Component.literal("Playing: ").withStyle(ChatFormatting.GREEN)
                     .append(Component.literal(newSoundName).withStyle(ChatFormatting.BLUE)), false);
         }
@@ -281,28 +286,29 @@ public class MusicMenuManager {
         }
     }
 
-    public static void shiftPage(Player player, Container container, MusicMenu menu, int page, int delta, int button) {
+    public static void shiftPage(Player player, Container container, MusicMenu musicMenu, int page, int delta, int button) {
         int newPage;
         if (button == 0) {
             newPage = page + delta;
         } else if (button == 1) {
             newPage = (delta == 1) ? getPageCount() : DEFAULT_PAGE;
         } else return;
-        menu.setPage(newPage);
-        menu.setLastMusicIndex(newPage);
-        refreshMusicMenu(player, newPage, container);
+        refreshMusicMenu(player, newPage, container, musicMenu);
     }
 
     public static void callMusicMenu(Player player) {
         SimpleContainer container = new SimpleContainer(54);
-        buildPage(container, DEFAULT_PAGE);
-        player.openMenu(new SimpleMenuProvider((containerId, playerInventory, p) -> new MusicMenu(containerId, playerInventory, container, DEFAULT_PAGE), Component.literal("Music Menu")));
+        player.openMenu(new SimpleMenuProvider((containerId, playerInventory, p) -> {
+            MusicMenu musicMenu = new MusicMenu(containerId, playerInventory, container, DEFAULT_PAGE);
+            buildPage(container, DEFAULT_PAGE, musicMenu);
+            return musicMenu;
+        }, Component.literal("Music Menu")));
     }
 
-    public static void refreshMusicMenu(Player player, int page, Container container) {
-        if (container instanceof SimpleContainer simple && player.containerMenu instanceof MusicMenu musicMenu) {
-            buildPage(simple, page);
-            musicMenu.broadcastChanges();
+    public static void refreshMusicMenu(Player player, int page, Container container, MusicMenu musicMenu) {
+        if (container instanceof SimpleContainer simple && player.containerMenu instanceof MusicMenu menu) {
+            buildPage(simple, page, musicMenu);
+            menu.broadcastChanges();
         }
     }
 }

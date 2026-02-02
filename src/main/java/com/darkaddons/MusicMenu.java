@@ -36,10 +36,11 @@ public class MusicMenu extends ChestMenu {
         if (player.level().isClientSide()) return;
         if (clickType != ClickType.PICKUP) return;
         if (slotIndex < 0 || slotIndex >= 54) return;
+
         switch (slotIndex) {
             case CLOSE_INDEX -> closeContainer(player);
-            case RESET_INDEX -> handleResetClick(player, musicContainer, page);
-            case LOOP_INDEX -> handleLoopClick(player, musicContainer, page);
+            case RESET_INDEX -> handleResetClick(player, musicContainer, page, this);
+            case LOOP_INDEX -> handleLoopClick(player, musicContainer, page, this);
             case SORT_INDEX -> handleSortClick(player, musicContainer, this, button);
             case FILTER_INDEX -> handleFilterClick(player, musicContainer, this, button);
             case PREVIOUS_PAGE_INDEX -> {
@@ -49,16 +50,17 @@ public class MusicMenu extends ChestMenu {
                 if (page < getPageCount()) shiftPage(player, musicContainer, this, page, 1, button);
             }
         }
-        if (lastMusicIndex == null) return;
-        if (slotIndex >= 10 && slotIndex <= lastMusicIndex) {
-            if (slotIndex % 9 == 0 || slotIndex % 9 == 8) return;
-            handleMusicSwap(player, musicContainer, slotIndex, page);
+
+        if (lastMusicIndex != null && slotIndex >= 10 && slotIndex <= lastMusicIndex) {
+            if (slotIndex % 9 != 0 && slotIndex % 9 != 8) {
+                handleMusicSwap(player, musicContainer, slotIndex, page, this);
+            }
         }
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        return musicContainer.stillValid(player);
     }
 
     @Override
