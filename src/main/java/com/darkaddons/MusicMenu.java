@@ -17,7 +17,7 @@ public class MusicMenu extends ChestMenu {
     private final Container musicContainer;
     private long lastClickTime = 0;
     private int page;
-    private int pageCount;
+    private int pageCount; // This is initialized during buildPage(), instead of when the instance of a musicMenu is created
 
     public MusicMenu(int id, Inventory inv, Container container, int page) {
         super(MenuType.GENERIC_9x6, id, inv, container, 6);
@@ -25,20 +25,28 @@ public class MusicMenu extends ChestMenu {
         this.musicContainer = container;
     }
 
+    public int getPage() {
+        return this.page;
+    }
+
     public void setPage(int x) {
         this.page = x;
     }
 
-    public void setPageCount(int x) { this.pageCount = x; }
+    public int getPageCount() {
+        return this.pageCount;
+    }
 
-    public int getPageCount() { return this.pageCount; }
+    public void setPageCount(int x) {
+        this.pageCount = x;
+    }
 
     @Override
     public void clicked(int slotIndex, int button, ClickType clickType, Player player) {
         if (player.level().isClientSide()) return;
         if (clickType != ClickType.PICKUP) return;
         if (slotIndex < 0 || slotIndex >= 54) return;
-        if (isMusic(slotIndex) || isFunctional(slotIndex)) {
+        if (isMusic(slotIndex, this) || isFunctional(slotIndex, this)) {
             long now = player.level().getGameTime();
             if (now <= lastClickTime + 2) {
                 player.displayClientMessage(Component.literal("The menu has been throttled, please slow down!").withStyle(ChatFormatting.RED), false);
@@ -48,7 +56,7 @@ public class MusicMenu extends ChestMenu {
             }
         } else return;
 
-        if (isFunctional(slotIndex)) {
+        if (isFunctional(slotIndex, this)) {
             switch (slotIndex) {
                 case CLOSE_INDEX -> closeContainer(player);
                 case RESET_INDEX -> handleResetClick(player, musicContainer, page, this);
@@ -58,7 +66,7 @@ public class MusicMenu extends ChestMenu {
                 case PREVIOUS_PAGE_INDEX -> shiftPage(player, musicContainer, this, page, -1, button);
                 case NEXT_PAGE_INDEX -> shiftPage(player, musicContainer, this, page, 1, button);
             }
-        } else if (isMusic(slotIndex)) {
+        } else if (isMusic(slotIndex, this)) {
             handleMusicSwap(player, musicContainer, slotIndex, page, this);
         }
     }
@@ -71,22 +79,5 @@ public class MusicMenu extends ChestMenu {
     @Override
     public @NotNull ItemStack quickMoveStack(Player player, int index) {
         return ItemStack.EMPTY;
-    }
-
-    private boolean isFunctional(int slotIndex) {
-        return switch (slotIndex) {
-            case CLOSE_INDEX, RESET_INDEX, LOOP_INDEX, SORT_INDEX, FILTER_INDEX -> true;
-            case PREVIOUS_PAGE_INDEX -> page > 1;
-            case NEXT_PAGE_INDEX -> page < getPageCount();
-            default -> false;
-        };
-    }
-
-    private boolean isMusic(int slotIndex) {
-        Integer lastMusicIndex = getLastMusicSlotIndex(page);
-        if (lastMusicIndex != null && slotIndex >= 10 && slotIndex <= lastMusicIndex) {
-            return slotIndex % 9 != 0 && slotIndex % 9 != 8;
-        }
-        return false;
     }
 }

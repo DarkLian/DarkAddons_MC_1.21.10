@@ -302,4 +302,21 @@ public class MusicMenuManager {
             menu.broadcastChanges();
         }
     }
+
+    public static boolean isFunctional(int slotIndex, MusicMenu musicMenu) {
+        return switch (slotIndex) {
+            case CLOSE_INDEX, RESET_INDEX, LOOP_INDEX, SORT_INDEX, FILTER_INDEX -> true;
+            case PREVIOUS_PAGE_INDEX -> musicMenu.getPage() > 1;
+            case NEXT_PAGE_INDEX -> musicMenu.getPage() < musicMenu.getPageCount();
+            default -> false;
+        };
+    }
+
+    public static boolean isMusic(int slotIndex, MusicMenu musicMenu) {
+        Integer lastMusicIndex = getLastMusicSlotIndex(musicMenu.getPage());
+        if (lastMusicIndex != null && slotIndex >= 10 && slotIndex <= lastMusicIndex) {
+            return slotIndex % 9 != 0 && slotIndex % 9 != 8;
+        }
+        return false;
+    }
 }
