@@ -17,6 +17,7 @@ public class MusicMenu extends ChestMenu {
     private final Container musicContainer;
     private long lastClickTime = 0;
     private int page;
+    private int pageCount;
 
     public MusicMenu(int id, Inventory inv, Container container, int page) {
         super(MenuType.GENERIC_9x6, id, inv, container, 6);
@@ -27,6 +28,10 @@ public class MusicMenu extends ChestMenu {
     public void setPage(int x) {
         this.page = x;
     }
+
+    public void setPageCount(int x) { this.pageCount = x; }
+
+    public int getPageCount() { return this.pageCount; }
 
     @Override
     public void clicked(int slotIndex, int button, ClickType clickType, Player player) {

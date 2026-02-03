@@ -51,15 +51,6 @@ public class MusicMenuManager {
     private static final MutableComponent EMPTY_LINE = literal("", ChatFormatting.WHITE);
     private static final List<ItemStack> MUSIC_ITEM_CACHE = new ArrayList<>();
     private static final List<ItemStack> FILTERED_MUSIC_ITEM = new ArrayList<>();
-    private static int pageCount;
-
-    public static int getPageCount() {
-        return pageCount;
-    }
-
-    public static void setPageCount(int count) {
-        pageCount = count;
-    }
 
     public static List<ItemStack> getFilteredList() {
         return FILTERED_MUSIC_ITEM;
@@ -127,7 +118,7 @@ public class MusicMenuManager {
         return failedIndices;
     }
 
-    private static void createMusicMenu(SimpleContainer container, int page) {
+    private static void createMusicMenu(SimpleContainer container, int page, MusicMenu musicMenu) {
         for (int i = 0; i < 9; i++) {
             container.setItem(i, GLASS_PANE);
             container.setItem(45 + i, GLASS_PANE);
@@ -136,12 +127,12 @@ public class MusicMenuManager {
             container.setItem(i * 9, GLASS_PANE);
             container.setItem(i * 9 + 8, GLASS_PANE);
         }
-        loadGuiItems(container, page);
+        loadGuiItems(container, page, musicMenu);
         loadMusic(container, page);
     }
 
-    private static void loadGuiItems(SimpleContainer container, int page) {
-        int totalPages = getPageCount();
+    private static void loadGuiItems(SimpleContainer container, int page, MusicMenu musicMenu) {
+        int totalPages = musicMenu.getPageCount();
         boolean isPlaying = getCurrentTrack() != null;
         SortMode currentMode = getCurrentMode();
         String currentSearchQuery = getCurrentSearchQuery();
@@ -224,8 +215,9 @@ public class MusicMenuManager {
     private static void buildPage(SimpleContainer container, int page, MusicMenu musicMenu) {
         container.clearContent();
         applyFilterAndSort();
+        musicMenu.setPageCount(Math.max((FILTERED_MUSIC_ITEM.size() + 27) / 28, 1));
         musicMenu.setPage(page);
-        createMusicMenu(container, page);
+        createMusicMenu(container, page, musicMenu);
     }
 
     public static void handleResetClick(Player player, Container container, int page, MusicMenu musicMenu) {
@@ -290,7 +282,7 @@ public class MusicMenuManager {
         if (button == 0) {
             newPage = page + delta;
         } else if (button == 1) {
-            newPage = (delta == 1) ? getPageCount() : DEFAULT_PAGE;
+            newPage = (delta == 1) ? musicMenu.getPageCount() : DEFAULT_PAGE;
         } else return;
         refreshMusicMenu(player, newPage, container, musicMenu);
     }

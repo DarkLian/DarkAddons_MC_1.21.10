@@ -48,7 +48,6 @@ public class ModFilter {
 
         filteredList.clear();
         filteredList.addAll(items);
-        setPageCount(Math.max((filteredList.size() + 27) / 28, 1));
     }
 
     public enum SortMode {
