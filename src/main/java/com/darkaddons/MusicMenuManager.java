@@ -26,6 +26,7 @@ import static com.darkaddons.MusicLoopHandler.stopTracking;
 import static com.darkaddons.item.MusicStick.*;
 
 public class MusicMenuManager {
+    // This is for singleplayer and one person only, hence static variable is used here
     public static final int STATUS_INDEX = 4;
     public static final int EMPTY_INDEX = 10;
     public static final int LOOP_INDEX = 45;
