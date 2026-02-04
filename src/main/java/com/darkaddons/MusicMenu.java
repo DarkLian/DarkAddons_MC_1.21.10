@@ -60,7 +60,7 @@ public class MusicMenu extends ChestMenu {
             switch (slotIndex) {
                 case CLOSE_INDEX -> closeContainer(player);
                 case RESET_INDEX -> handleResetClick(player, musicContainer, page, this);
-                case LOOP_INDEX -> handleLoopClick(player, musicContainer, page, this);
+                case LOOP_INDEX -> handlePlayModeClick(player, musicContainer, page, this, button);
                 case SORT_INDEX -> handleSortClick(player, musicContainer, this, button);
                 case FILTER_INDEX -> handleFilterClick(player, musicContainer, this, button);
                 case PREVIOUS_PAGE_INDEX -> shiftPage(player, musicContainer, this, page, -1, button);

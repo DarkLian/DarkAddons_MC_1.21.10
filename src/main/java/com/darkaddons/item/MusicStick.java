@@ -2,6 +2,7 @@ package com.darkaddons.item;
 
 import com.darkaddons.DarkAddons;
 import com.darkaddons.ModFilter.*;
+import com.darkaddons.ModMusicPlayer.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -30,10 +31,10 @@ public class MusicStick extends Item {
     @Nullable
     private static String currentTrack = null;
     private static String currentSearchQuery = "";
-    private static boolean looping = false;
     private static boolean searching = false;
     private static boolean initialized = false;
-    private static SortMode currentMode = SortMode.DEFAULT;
+    private static SortMode currentSortMode = SortMode.DEFAULT;
+    private static PlayMode currentPlayMode = PlayMode.DEFAULT;
 
     public MusicStick(Properties properties) {
         super(properties);
@@ -48,14 +49,6 @@ public class MusicStick extends Item {
         currentTrack = newTrack;
     }
 
-    public static boolean isLooping() {
-        return looping;
-    }
-
-    public static void toggleLooping() {
-        looping = !looping;
-    }
-
     public static boolean isInitialized() {
         return initialized;
     }
@@ -64,12 +57,12 @@ public class MusicStick extends Item {
         MusicStick.initialized = initialized;
     }
 
-    public static SortMode getCurrentMode() {
-        return currentMode;
+    public static SortMode getCurrentSortMode() {
+        return currentSortMode;
     }
 
-    public static void setCurrentMode(SortMode newMode) {
-        currentMode = newMode;
+    public static void setCurrentSortMode(SortMode newMode) {
+        currentSortMode = newMode;
     }
 
     public static String getCurrentSearchQuery() {
@@ -86,6 +79,14 @@ public class MusicStick extends Item {
 
     public static void setSearching(boolean searching) {
         MusicStick.searching = searching;
+    }
+
+    public static PlayMode getCurrentPlayMode() {
+        return currentPlayMode;
+    }
+
+    public static void setCurrentPlayMode(PlayMode currentPlayMode) {
+        MusicStick.currentPlayMode = currentPlayMode;
     }
 
     @Override
@@ -146,7 +147,7 @@ public class MusicStick extends Item {
         if (DarkAddons.clientHelper.isShiftPressed()) {
             boolean isPlaying = currentTrack != null;
             consumer.accept(Component.literal("Currently Playing: ").withStyle(ChatFormatting.GRAY).append(Component.literal(isPlaying ? currentTrack : "None").withStyle(isPlaying ? ChatFormatting.BLUE : ChatFormatting.RED)));
-            consumer.accept(Component.literal("Loop: ").withStyle(ChatFormatting.GRAY).append(Component.literal(isLooping() ? "Enabled" : "Disabled").withStyle(isLooping() ? ChatFormatting.GREEN : ChatFormatting.RED)));
+            consumer.accept(Component.literal("Mode: ").withStyle(ChatFormatting.GRAY).append(Component.literal(currentPlayMode.getDisplayName()).withStyle(ChatFormatting.GREEN)));
         }
     }
 }

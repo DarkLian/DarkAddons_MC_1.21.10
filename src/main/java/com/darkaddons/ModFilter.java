@@ -14,8 +14,7 @@ public class ModFilter {
 
     public static void applyFilterAndSort() {
         String searchQuery = getCurrentSearchQuery();
-        String currentTrack = getCurrentTrack();
-        SortMode mode = getCurrentMode();
+        SortMode mode = getCurrentSortMode();
         Comparator<ItemStack> rule = mode.getSortRule();
         List<ItemStack> filteredList = getFilteredList();
         List<ItemStack> items = getMusicCache();
@@ -30,20 +29,6 @@ public class ModFilter {
 
         if (rule != null) {
             items.sort(rule);
-        }
-
-        if (currentTrack != null) {
-            ItemStack temp = ItemStack.EMPTY;
-            for (ItemStack s : items) {
-                if (s.getOrDefault(ModComponents.SOUND_NAME, "").equals(currentTrack)) {
-                    temp = s;
-                    break;
-                }
-            }
-            if (!temp.isEmpty()) {
-                items.remove(temp);
-                items.addFirst(temp);
-            }
         }
 
         filteredList.clear();

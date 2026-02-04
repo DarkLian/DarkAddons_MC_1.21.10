@@ -24,6 +24,7 @@ import static com.darkaddons.ModSounds.*;
 import static com.darkaddons.MusicLoopHandler.startTracking;
 import static com.darkaddons.MusicLoopHandler.stopTracking;
 import static com.darkaddons.item.MusicStick.*;
+import static com.darkaddons.ModMusicPlayer.*;
 
 public class MusicMenuManager {
     // This is for singleplayer and one person only, hence static variable is used here
@@ -40,7 +41,7 @@ public class MusicMenuManager {
     private static final ItemStack STATUS_DISPLAY = createStaticItem(Items.ENCHANTED_BOOK, "", ChatFormatting.WHITE);
     private static final ItemStack GLASS_PANE = createStaticItem(Items.GRAY_STAINED_GLASS_PANE, "", ChatFormatting.WHITE);
     private static final ItemStack EMPTY_FEATHER = createStaticItem(Items.FEATHER, "No music found", ChatFormatting.RED);
-    private static final ItemStack LOOP_BUTTON = createStaticItem(Items.GOLD_INGOT, "", ChatFormatting.WHITE);
+    private static final ItemStack MODE_BUTTON = createStaticItem(Items.GOLD_INGOT, "Play Mode", ChatFormatting.GREEN);
     private static final ItemStack SORT_HOPPER = createStaticItem(Items.HOPPER, "Sort", ChatFormatting.GREEN);
     private static final ItemStack FILTER_SIGN = createStaticItem(Items.OAK_SIGN, "Search", ChatFormatting.GREEN);
     private static final ItemStack NEXT_ARROW = createStaticItem(Items.ARROW, "Next Page", ChatFormatting.GREEN);
@@ -135,19 +136,24 @@ public class MusicMenuManager {
     private static void loadGuiItems(SimpleContainer container, int page, MusicMenu musicMenu) {
         int totalPages = musicMenu.getPageCount();
         boolean isPlaying = getCurrentTrack() != null;
-        SortMode currentMode = getCurrentMode();
+        SortMode currentSortMode = getCurrentSortMode();
+        PlayMode currentPlayMode = getCurrentPlayMode();
         String currentSearchQuery = getCurrentSearchQuery();
 
         MutableComponent status = literal("Currently Playing: ", ChatFormatting.GREEN)
                 .append(literal(isPlaying ? getCurrentTrack() : "None", ChatFormatting.BLUE, ChatFormatting.RED, isPlaying));
 
-        MutableComponent loopStatus = literal("Loop: ", ChatFormatting.GREEN)
-                .append(literal(isLooping() ? "Enabled" : "Disabled", ChatFormatting.YELLOW, ChatFormatting.RED, isLooping()));
-        MutableComponent loopInfo = literal(isLooping() ? "Click to disable Loop!" : "Click to enable Loop!", ChatFormatting.GREEN);
-        ItemLore loopLore = new ItemLore(List.of(
-                EMPTY_LINE,
-                loopInfo
-        ));
+        List<Component> pLines = new ArrayList<>();
+        pLines.add(EMPTY_LINE);
+        for (ModMusicPlayer.PlayMode mode : PlayMode.values()) {
+            boolean selected = (mode == currentPlayMode);
+            String prefix = selected ? "▶ " : "";
+            ChatFormatting color = selected ? ChatFormatting.WHITE : ChatFormatting.GRAY;
+            pLines.add(literal(prefix + mode.getDisplayName(), color));
+        }
+        pLines.add(EMPTY_LINE);
+        pLines.add(literal("Right-Click to go backwards!", ChatFormatting.WHITE));
+        pLines.add(literal("Click to switch mode!", ChatFormatting.GREEN));
 
         MutableComponent pageInfo = literal("(" + page + "/" + totalPages + ")", ChatFormatting.GRAY);
         ItemLore navigationLore = new ItemLore(List.of(
@@ -160,7 +166,7 @@ public class MusicMenuManager {
         List<Component> sLines = new ArrayList<>();
         sLines.add(EMPTY_LINE);
         for (SortMode mode : SortMode.values()) {
-            boolean selected = (mode == currentMode);
+            boolean selected = (mode == currentSortMode);
             String prefix = selected ? "▶ " : "";
             ChatFormatting color = selected ? ChatFormatting.WHITE : ChatFormatting.GRAY;
             sLines.add(literal(prefix + mode.getDisplayName(), color));
@@ -178,15 +184,14 @@ public class MusicMenuManager {
         searchLore.add(literal("Right-Click to clear!", ChatFormatting.WHITE));
         searchLore.add(literal("Click to edit filter!", ChatFormatting.YELLOW));
 
-        LOOP_BUTTON.set(DataComponents.LORE, loopLore);
+        MODE_BUTTON.set(DataComponents.LORE, new ItemLore(pLines));
         SORT_HOPPER.set(DataComponents.LORE, new ItemLore(sLines));
         FILTER_SIGN.set(DataComponents.LORE, new ItemLore(searchLore));
         NEXT_ARROW.set(DataComponents.LORE, navigationLore);
         PREV_ARROW.set(DataComponents.LORE, navigationLore);
-        LOOP_BUTTON.set(DataComponents.CUSTOM_NAME, loopStatus);
         STATUS_DISPLAY.set(DataComponents.CUSTOM_NAME, status);
         container.setItem(STATUS_INDEX, STATUS_DISPLAY);
-        container.setItem(LOOP_INDEX, LOOP_BUTTON);
+        container.setItem(LOOP_INDEX, MODE_BUTTON);
         container.setItem(SORT_INDEX, SORT_HOPPER);
         container.setItem(FILTER_INDEX, FILTER_SIGN);
         container.setItem(CLOSE_INDEX, CLOSE_BARRIER);
@@ -229,14 +234,15 @@ public class MusicMenuManager {
         refreshMusicMenu(player, page, container, musicMenu);
     }
 
-    public static void handleLoopClick(Player player, Container container, int page, MusicMenu musicMenu) {
-        toggleLooping();
+    public static void handlePlayModeClick(Player player, Container container, int page, MusicMenu musicMenu, int button) {
+        if (button == 0) setCurrentPlayMode(getCurrentPlayMode().next());
+        else if (button == 1) setCurrentPlayMode(getCurrentPlayMode().prev());
         refreshMusicMenu(player, page, container, musicMenu);
     }
 
     public static void handleSortClick(Player player, Container container, MusicMenu musicMenu, int button) {
-        if (button == 0) setCurrentMode(getCurrentMode().next());
-        else if (button == 1) setCurrentMode(getCurrentMode().prev());
+        if (button == 0) setCurrentSortMode(getCurrentSortMode().next());
+        else if (button == 1) setCurrentSortMode(getCurrentSortMode().prev());
         refreshMusicMenu(player, DEFAULT_PAGE, container, musicMenu);
     }
 
