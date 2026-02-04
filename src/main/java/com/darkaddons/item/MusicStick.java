@@ -142,12 +142,10 @@ public class MusicStick extends Item {
 
     @Override
     public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
+        boolean isPlaying = currentTrack != null;
         consumer.accept(Component.literal("Right-click to open music menu!").withStyle(ChatFormatting.GREEN));
         consumer.accept(Component.literal("Music count: ").withStyle(ChatFormatting.GRAY).append(Component.literal(String.valueOf(getTotalMusicCount())).withStyle(ChatFormatting.BLUE)));
-        if (DarkAddons.clientHelper.isShiftPressed()) {
-            boolean isPlaying = currentTrack != null;
-            consumer.accept(Component.literal("Currently Playing: ").withStyle(ChatFormatting.GRAY).append(Component.literal(isPlaying ? currentTrack : "None").withStyle(isPlaying ? ChatFormatting.BLUE : ChatFormatting.RED)));
-            consumer.accept(Component.literal("Mode: ").withStyle(ChatFormatting.GRAY).append(Component.literal(currentPlayMode.getDisplayName()).withStyle(ChatFormatting.GREEN)));
-        }
+        consumer.accept(Component.literal("Currently Playing: ").withStyle(ChatFormatting.GRAY).append(Component.literal(isPlaying ? currentTrack : "None").withStyle(isPlaying ? ChatFormatting.BLUE : ChatFormatting.RED)));
+        consumer.accept(Component.literal("Mode: ").withStyle(ChatFormatting.GRAY).append(Component.literal(currentPlayMode.getDisplayName()).withStyle(ChatFormatting.GREEN)));
     }
 }

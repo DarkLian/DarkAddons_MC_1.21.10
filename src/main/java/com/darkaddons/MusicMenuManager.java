@@ -1,9 +1,11 @@
 package com.darkaddons;
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -228,7 +230,7 @@ public class MusicMenuManager {
 
     public static void handleResetClick(Player player, Container container, int page, MusicMenu musicMenu) {
         stopTracking();
-        DarkAddons.clientHelper.stopMusic();
+        stopMusic(player);
         player.displayClientMessage(Component.literal("Reset Music!").withStyle(ChatFormatting.RED), false);
         setCurrentTrack(null);
         refreshMusicMenu(player, page, container, musicMenu);
@@ -251,7 +253,9 @@ public class MusicMenuManager {
             setSearching(true);
             closeContainer(player);
             player.displayClientMessage(Component.literal("Type the name of the music you want to search in chat and press Enter!").withStyle(ChatFormatting.YELLOW), false);
-            DarkAddons.clientHelper.openChatBox();
+            if (player instanceof ServerPlayer serverPlayer) {
+                ServerPlayNetworking.send(serverPlayer, new ModPackets.OpenChatPayload());
+            }
         } else if (button == 1) {
             setCurrentSearchQuery("");
             refreshMusicMenu(player, DEFAULT_PAGE, container, musicMenu);
@@ -259,7 +263,7 @@ public class MusicMenuManager {
     }
 
     private static void swapMusic(String soundName, Player player) {
-        DarkAddons.clientHelper.stopMusic();
+        stopMusic(player);
         startTracking(player, soundName);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), getSound(soundName), SoundSource.RECORDS, 1.0f, 1.0f);
     }
@@ -325,5 +329,11 @@ public class MusicMenuManager {
             return slotIndex % 9 != 0 && slotIndex % 9 != 8;
         }
         return false;
+    }
+
+    public static void stopMusic(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.connection.send(new ClientboundStopSoundPacket(null, SoundSource.RECORDS));
+        }
     }
 }

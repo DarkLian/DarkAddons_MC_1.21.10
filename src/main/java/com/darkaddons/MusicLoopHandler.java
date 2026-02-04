@@ -12,6 +12,7 @@ import static com.darkaddons.ModMusicPlayer.PlayMode;
 import static com.darkaddons.ModSounds.getSound;
 import static com.darkaddons.ModSounds.getSoundDurationTick;
 import static com.darkaddons.MusicMenuManager.getFilteredList;
+import static com.darkaddons.MusicMenuManager.stopMusic;
 import static com.darkaddons.item.MusicStick.*;
 
 public class MusicLoopHandler {
@@ -67,7 +68,7 @@ public class MusicLoopHandler {
     private static void playHelper(Player player, String musicName) {
         setCurrentTrack(musicName);
         SoundEvent soundEvent = Objects.requireNonNull(getSound(musicName));
-        DarkAddons.clientHelper.stopMusic();
+        stopMusic(player);
         startTracking(player, musicName);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.RECORDS, 1.0f, 1.0f);
     }
