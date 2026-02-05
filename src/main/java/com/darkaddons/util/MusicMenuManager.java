@@ -1,5 +1,10 @@
-package com.darkaddons;
+package com.darkaddons.util;
 
+import com.darkaddons.core.DarkAddons;
+import com.darkaddons.core.ModComponents;
+import com.darkaddons.core.ModPackets;
+import com.darkaddons.core.ModStats;
+import com.darkaddons.menu.MusicMenu;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -17,22 +22,25 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
-import static com.darkaddons.ModFilter.*;
-import static com.darkaddons.ModSounds.*;
-import static com.darkaddons.MusicLoopHandler.startTracking;
-import static com.darkaddons.MusicLoopHandler.stopTracking;
-import static com.darkaddons.item.MusicStick.*;
-import static com.darkaddons.ModMusicPlayer.*;
+import static com.darkaddons.core.ModSounds.*;
+import static com.darkaddons.util.ModFilter.SortMode;
+import static com.darkaddons.util.ModFilter.applyFilterAndSort;
+import static com.darkaddons.util.ModMusicPlayer.PlayMode;
+import static com.darkaddons.util.MusicLoopHandler.startTracking;
+import static com.darkaddons.util.MusicLoopHandler.stopTracking;
 
 public class MusicMenuManager {
     // This is for singleplayer and one person only, hence static variable is used here
     public static final int STATUS_INDEX = 4;
     public static final int EMPTY_INDEX = 10;
-    public static final int LOOP_INDEX = 45;
+    public static final int MODE_INDEX = 45;
     public static final int SORT_INDEX = 46;
     public static final int FILTER_INDEX = 47;
     public static final int PREVIOUS_PAGE_INDEX = 48;
@@ -137,17 +145,18 @@ public class MusicMenuManager {
 
     private static void loadGuiItems(SimpleContainer container, int page, MusicMenu musicMenu) {
         int totalPages = musicMenu.getPageCount();
-        boolean isPlaying = getCurrentTrack() != null;
-        SortMode currentSortMode = getCurrentSortMode();
-        PlayMode currentPlayMode = getCurrentPlayMode();
-        String currentSearchQuery = getCurrentSearchQuery();
+        String currentTrack = ModStats.getCurrentTrack();
+        String currentSearchQuery = ModStats.getCurrentSearchQuery();
+        boolean isPlaying = currentTrack != null;
+        SortMode currentSortMode = ModStats.getCurrentSortMode();
+        PlayMode currentPlayMode = ModStats.getCurrentPlayMode();
 
         MutableComponent status = literal("Currently Playing: ", ChatFormatting.GREEN)
-                .append(literal(isPlaying ? getCurrentTrack() : "None", ChatFormatting.BLUE, ChatFormatting.RED, isPlaying));
+                .append(literal(isPlaying ? currentTrack : "None", ChatFormatting.BLUE, ChatFormatting.RED, isPlaying));
 
         List<Component> pLines = new ArrayList<>();
         pLines.add(EMPTY_LINE);
-        for (ModMusicPlayer.PlayMode mode : PlayMode.values()) {
+        for (PlayMode mode : PlayMode.values()) {
             boolean selected = (mode == currentPlayMode);
             String prefix = selected ? "▶ " : "";
             ChatFormatting color = selected ? ChatFormatting.WHITE : ChatFormatting.GRAY;
@@ -193,7 +202,7 @@ public class MusicMenuManager {
         PREV_ARROW.set(DataComponents.LORE, navigationLore);
         STATUS_DISPLAY.set(DataComponents.CUSTOM_NAME, status);
         container.setItem(STATUS_INDEX, STATUS_DISPLAY);
-        container.setItem(LOOP_INDEX, MODE_BUTTON);
+        container.setItem(MODE_INDEX, MODE_BUTTON);
         container.setItem(SORT_INDEX, SORT_HOPPER);
         container.setItem(FILTER_INDEX, FILTER_SIGN);
         container.setItem(CLOSE_INDEX, CLOSE_BARRIER);
@@ -211,7 +220,7 @@ public class MusicMenuManager {
                 int musicIndex = i + 28 * (page - 1);
                 int slotIndex = 10 + i + 2 * (i / 7);
                 ItemStack menuItem = FILTERED_MUSIC_ITEM.get(musicIndex).copy();
-                boolean isSelected = menuItem.getOrDefault(ModComponents.SOUND_NAME, "").equals(getCurrentTrack());
+                boolean isSelected = menuItem.getOrDefault(ModComponents.SOUND_NAME, "").equals(ModStats.getCurrentTrack());
                 ItemLore itemLore = menuItem.getOrDefault(DataComponents.LORE, ItemLore.EMPTY).withLineAdded(isSelected ? SELECTED_LORE : UNSELECTED_LORE);
                 menuItem.set(DataComponents.LORE, itemLore);
                 menuItem.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, isSelected);
@@ -232,32 +241,32 @@ public class MusicMenuManager {
         stopTracking();
         stopMusic(player);
         player.displayClientMessage(Component.literal("Reset Music!").withStyle(ChatFormatting.RED), false);
-        setCurrentTrack(null);
+        ModStats.setCurrentTrack(null);
         refreshMusicMenu(player, page, container, musicMenu);
     }
 
     public static void handlePlayModeClick(Player player, Container container, int page, MusicMenu musicMenu, int button) {
-        if (button == 0) setCurrentPlayMode(getCurrentPlayMode().next());
-        else if (button == 1) setCurrentPlayMode(getCurrentPlayMode().prev());
+        if (button == 0) ModStats.setCurrentPlayMode(ModStats.getCurrentPlayMode().next());
+        else if (button == 1) ModStats.setCurrentPlayMode(ModStats.getCurrentPlayMode().prev());
         refreshMusicMenu(player, page, container, musicMenu);
     }
 
     public static void handleSortClick(Player player, Container container, MusicMenu musicMenu, int button) {
-        if (button == 0) setCurrentSortMode(getCurrentSortMode().next());
-        else if (button == 1) setCurrentSortMode(getCurrentSortMode().prev());
+        if (button == 0) ModStats.setCurrentSortMode(ModStats.getCurrentSortMode().next());
+        else if (button == 1) ModStats.setCurrentSortMode(ModStats.getCurrentSortMode().prev());
         refreshMusicMenu(player, DEFAULT_PAGE, container, musicMenu);
     }
 
     public static void handleFilterClick(Player player, Container container, MusicMenu musicMenu, int button) {
         if (button == 0) {
-            setSearching(true);
+            ModStats.setSearching(true);
             closeContainer(player);
             player.displayClientMessage(Component.literal("Type the name of the music you want to search in chat and press Enter!").withStyle(ChatFormatting.YELLOW), false);
             if (player instanceof ServerPlayer serverPlayer) {
                 ServerPlayNetworking.send(serverPlayer, new ModPackets.OpenChatPayload());
             }
         } else if (button == 1) {
-            setCurrentSearchQuery("");
+            ModStats.setCurrentSearchQuery("");
             refreshMusicMenu(player, DEFAULT_PAGE, container, musicMenu);
         }
     }
@@ -270,11 +279,11 @@ public class MusicMenuManager {
 
     public static void handleMusicSwap(Player player, Container container, int slotIndex, int page, MusicMenu musicMenu) {
         String newSoundName = container.getItem(slotIndex).getOrDefault(ModComponents.SOUND_NAME, "");
-        boolean isSelected = newSoundName.equals(getCurrentTrack());
+        boolean isSelected = newSoundName.equals(ModStats.getCurrentTrack());
         if (isSelected) {
             player.displayClientMessage(Component.literal("Music is already selected!").withStyle(ChatFormatting.RED), false);
         } else {
-            setCurrentTrack(newSoundName);
+            ModStats.setCurrentTrack(newSoundName);
             swapMusic(newSoundName, player);
             player.displayClientMessage(Component.literal("Playing: ").withStyle(ChatFormatting.GREEN)
                     .append(Component.literal(newSoundName).withStyle(ChatFormatting.BLUE)), false);
@@ -316,7 +325,7 @@ public class MusicMenuManager {
 
     public static boolean isFunctional(int slotIndex, MusicMenu musicMenu) {
         return switch (slotIndex) {
-            case CLOSE_INDEX, RESET_INDEX, LOOP_INDEX, SORT_INDEX, FILTER_INDEX -> true;
+            case CLOSE_INDEX, RESET_INDEX, MODE_INDEX, SORT_INDEX, FILTER_INDEX -> true;
             case PREVIOUS_PAGE_INDEX -> musicMenu.getPage() > 1;
             case NEXT_PAGE_INDEX -> musicMenu.getPage() < musicMenu.getPageCount();
             default -> false;
@@ -335,5 +344,53 @@ public class MusicMenuManager {
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.connection.send(new ClientboundStopSoundPacket(null, SoundSource.RECORDS));
         }
+    }
+
+    public static void handleMusicInput(Level level, Player player) {
+        if (ModStats.isSearching()) {
+            player.displayClientMessage(Component.literal("Search Canceled!").withStyle(ChatFormatting.RED), false);
+            ModStats.setSearching(false);
+        }
+        if (ModStats.isInitialized()) {
+            callMusicMenu(player);
+            return;
+        }
+
+        // if false, it passes this if and set the atomic boolean to true instantly on hardware level to ensure no race condition
+        if (!ModStats.isCurrentlyLoading.compareAndSet(false, true)) {
+            player.displayClientMessage(Component.literal("Music is already loading, please wait...").withStyle(ChatFormatting.RED), false);
+            return;
+        }
+
+        player.displayClientMessage(Component.literal("Loading music...").withStyle(ChatFormatting.GREEN), false);
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                long startTime = System.currentTimeMillis();
+                List<Integer> failedIndices = initializeMusicCache();
+                long dif = System.currentTimeMillis() - startTime;
+                Objects.requireNonNull(level.getServer()).execute(() -> {
+                    if (failedIndices.isEmpty()) {
+                        player.displayClientMessage(Component.literal("Music Loaded successfully!").withStyle(ChatFormatting.GREEN), false);
+                    } else {
+                        MutableComponent message = Component.literal("Failed to load music numbers: ").withStyle(ChatFormatting.RED);
+                        for (int i = 0; i < failedIndices.size(); i++) {
+                            message.append(Component.literal(String.valueOf(failedIndices.get(i))).withStyle(ChatFormatting.BLUE));
+                            if (i < failedIndices.size() - 1) {
+                                message.append(Component.literal(", ").withStyle(ChatFormatting.GRAY));
+                            }
+                        }
+                        player.displayClientMessage(message, false);
+                    }
+                    player.displayClientMessage(Component.literal("Time took: " + dif + "ms").withStyle(ChatFormatting.GREEN), false);
+                    ModStats.setInitialized(true);
+                    ModStats.isCurrentlyLoading.set(false);
+                    callMusicMenu(player);
+                });
+            } catch (Exception e) {
+                DarkAddons.LOGGER.error("Failed to load music", e);
+                ModStats.isCurrentlyLoading.set(false);
+            }
+        });
     }
 }

@@ -1,24 +1,23 @@
-package com.darkaddons;
+package com.darkaddons.core;
 
 
 import com.darkaddons.item.Hyperion;
 import com.darkaddons.item.LightningStick;
 import com.darkaddons.item.MusicStick;
 import com.darkaddons.item.TeleportStick;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 
 import java.util.function.Function;
 
-import static com.darkaddons.DarkAddons.MOD_ID;
+import static com.darkaddons.core.DarkAddons.MOD_ID;
 
+@SuppressWarnings("unused")
 public final class ModItems {
 
     public static final Item LIGHTNING_STICK = register("lightning_stick", LightningStick::new, new Item.Properties().stacksTo(1).component(ModComponents.CHARGE, 20));
@@ -36,9 +35,6 @@ public final class ModItems {
 
     public static void initialize() {
         DarkAddons.LOGGER.info("Registering Items for DarkAddons");
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> entries.accept(LIGHTNING_STICK));
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> entries.accept(TELEPORT_STICK));
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COMBAT).register(entries -> entries.accept(HYPERION));
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> entries.accept(MUSIC_STICK));
     }
+
 }

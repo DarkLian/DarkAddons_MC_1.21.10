@@ -12,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.darkaddons.utils.utilities.distance;
-import static com.darkaddons.utils.utilities.getNearByLivingEntities;
+import static com.darkaddons.util.ModUtilities.distance;
+import static com.darkaddons.util.ModUtilities.getNearByLivingEntities;
 
 public class TeleportStick extends Item {
     private static final double ABILITY_RADIUS = 20.0;

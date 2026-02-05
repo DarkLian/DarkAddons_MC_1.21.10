@@ -1,4 +1,4 @@
-package com.darkaddons;
+package com.darkaddons.core;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.UnaryOperator;
 
-import static com.darkaddons.DarkAddons.MOD_ID;
+import static com.darkaddons.core.DarkAddons.MOD_ID;
 
 public class ModComponents {
 

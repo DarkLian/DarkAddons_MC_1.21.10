@@ -1,4 +1,4 @@
-package com.darkaddons;
+package com.darkaddons.core;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -10,7 +10,7 @@ import net.minecraft.world.item.Items;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.darkaddons.DarkAddons.MOD_ID;
+import static com.darkaddons.core.DarkAddons.MOD_ID;
 
 public class ModSounds {
     private static final List<TrackEntry> MUSIC_ENTRIES = new ArrayList<>();

@@ -1,6 +1,6 @@
 package com.darkaddons.item;
 
-import com.darkaddons.ModComponents;
+import com.darkaddons.core.ModComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.darkaddons.utils.utilities.getNearByLivingEntities;
+import static com.darkaddons.util.ModUtilities.getNearByLivingEntities;
 
 public class LightningStick extends Item {
     private static final double ABILITY_RADIUS = 10.0;

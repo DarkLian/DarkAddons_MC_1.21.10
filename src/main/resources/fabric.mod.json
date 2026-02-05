@@ -16,10 +16,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.darkaddons.DarkAddons"
+			"com.darkaddons.core.DarkAddons"
 		],
 		"client": [
-			"com.darkaddons.DarkAddonsClient"
+			"com.darkaddons.core.DarkAddonsClient"
 		]
 	},
 	"mixins": [

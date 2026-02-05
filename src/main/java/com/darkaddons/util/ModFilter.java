@@ -1,20 +1,22 @@
-package com.darkaddons;
+package com.darkaddons.util;
 
+import com.darkaddons.core.ModComponents;
+import com.darkaddons.core.ModStats;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import static com.darkaddons.ModSounds.getSoundDuration;
-import static com.darkaddons.MusicMenuManager.*;
-import static com.darkaddons.item.MusicStick.*;
+import static com.darkaddons.core.ModSounds.getSoundDuration;
+import static com.darkaddons.util.MusicMenuManager.getFilteredList;
+import static com.darkaddons.util.MusicMenuManager.getMusicCache;
 
 public class ModFilter {
 
     public static void applyFilterAndSort() {
-        String searchQuery = getCurrentSearchQuery();
-        SortMode mode = getCurrentSortMode();
+        String searchQuery = ModStats.getCurrentSearchQuery();
+        SortMode mode = ModStats.getCurrentSortMode();
         Comparator<ItemStack> rule = mode.getSortRule();
         List<ItemStack> filteredList = getFilteredList();
         List<ItemStack> items = getMusicCache();
@@ -51,9 +53,20 @@ public class ModFilter {
             this.sortRule = sortRule;
         }
 
-        public SortMode next() { return MODES[(ordinal() + 1) % MODES.length]; }
-        public SortMode prev() { return (ordinal() == 0) ? MODES[MODES.length - 1] : MODES[ordinal() - 1]; }
-        public String getDisplayName() { return this.displayName; }
-        public Comparator<ItemStack> getSortRule() { return this.sortRule; }
+        public SortMode next() {
+            return MODES[(ordinal() + 1) % MODES.length];
+        }
+
+        public SortMode prev() {
+            return (ordinal() == 0) ? MODES[MODES.length - 1] : MODES[ordinal() - 1];
+        }
+
+        public String getDisplayName() {
+            return this.displayName;
+        }
+
+        public Comparator<ItemStack> getSortRule() {
+            return this.sortRule;
+        }
     }
 }

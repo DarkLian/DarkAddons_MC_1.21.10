@@ -1,4 +1,4 @@
-package com.darkaddons;
+package com.darkaddons.core;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

@@ -1,4 +1,4 @@
-package com.darkaddons.utils;
+package com.darkaddons.util;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -10,7 +10,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class utilities {
+public class ModUtilities {
     public static <T extends Entity> List<T> getNearByLivingEntities(Level level, Entity center, double radius, Class<T> entityClass) {
         AABB box = center.getBoundingBox().inflate(radius);
         return level.getEntitiesOfClass(entityClass, box, entity -> entity != center);

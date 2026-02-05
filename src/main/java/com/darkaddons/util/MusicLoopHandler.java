@@ -1,5 +1,9 @@
-package com.darkaddons;
+package com.darkaddons.util;
 
+import com.darkaddons.core.ModComponents;
+import com.darkaddons.core.ModStats;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
@@ -8,12 +12,11 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 import java.util.Objects;
 
-import static com.darkaddons.ModMusicPlayer.PlayMode;
-import static com.darkaddons.ModSounds.getSound;
-import static com.darkaddons.ModSounds.getSoundDurationTick;
-import static com.darkaddons.MusicMenuManager.getFilteredList;
-import static com.darkaddons.MusicMenuManager.stopMusic;
-import static com.darkaddons.item.MusicStick.*;
+import static com.darkaddons.core.ModSounds.getSound;
+import static com.darkaddons.core.ModSounds.getSoundDurationTick;
+import static com.darkaddons.util.ModMusicPlayer.PlayMode;
+import static com.darkaddons.util.MusicMenuManager.getFilteredList;
+import static com.darkaddons.util.MusicMenuManager.stopMusic;
 
 public class MusicLoopHandler {
     private static Long endTime = null;
@@ -28,17 +31,17 @@ public class MusicLoopHandler {
     }
 
     public static void onTick(Player player) {
-        if (endTime == null || getCurrentTrack() == null) return;
+        if (endTime == null || ModStats.getCurrentTrack() == null) return;
         if (player.level().getGameTime() >= endTime) {
-            PlayMode currentPlayMode = getCurrentPlayMode();
+            PlayMode currentPlayMode = ModStats.getCurrentPlayMode();
             switch (currentPlayMode) {
                 case DEFAULT -> reset();
                 case LOOP -> {
-                    String nextMusic = Objects.requireNonNull(getCurrentTrack());
+                    String nextMusic = Objects.requireNonNull(ModStats.getCurrentTrack());
                     playHelper(player, nextMusic);
                 }
                 case AUTOPLAY -> { // Autoplay depends on current filtered music list, empty -> stop; contains currentTrack -> play next (if last then jump back to first one); doesn't contain -> get first one
-                    String currentTrack = getCurrentTrack();
+                    String currentTrack = ModStats.getCurrentTrack();
                     List<ItemStack> filteredList = getFilteredList();
                     boolean inList = false;
                     int index = 0;
@@ -66,16 +69,18 @@ public class MusicLoopHandler {
     }
 
     private static void playHelper(Player player, String musicName) {
-        setCurrentTrack(musicName);
+        ModStats.setCurrentTrack(musicName);
         SoundEvent soundEvent = Objects.requireNonNull(getSound(musicName));
         stopMusic(player);
         startTracking(player, musicName);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.RECORDS, 1.0f, 1.0f);
+        player.displayClientMessage(Component.literal("Playing: ").withStyle(ChatFormatting.GREEN)
+                .append(Component.literal(musicName).withStyle(ChatFormatting.BLUE)), false);
     }
 
     private static void reset() {
         stopTracking();
-        setCurrentTrack(null);
+        ModStats.setCurrentTrack(null);
     }
 
 

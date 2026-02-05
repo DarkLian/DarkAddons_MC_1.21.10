@@ -1,6 +1,6 @@
 package com.darkaddons.item;
 
-import com.darkaddons.ModComponents;
+import com.darkaddons.core.ModComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,8 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.darkaddons.utils.utilities.getNearByLivingEntities;
-import static com.darkaddons.utils.utilities.getTeleportTarget;
+import static com.darkaddons.util.ModUtilities.getNearByLivingEntities;
+import static com.darkaddons.util.ModUtilities.getTeleportTarget;
 
 public class Hyperion extends Item {
     private static final int COOLDOWN_TICKS = 3;
