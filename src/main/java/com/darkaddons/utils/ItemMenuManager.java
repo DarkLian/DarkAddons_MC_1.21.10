@@ -1,5 +1,6 @@
 package com.darkaddons.utils;
 
+import com.darkaddons.api.BaseModMenu;
 import com.darkaddons.api.BaseModMenuManager;
 import com.darkaddons.api.Sortable;
 import com.darkaddons.init.ItemInit;
@@ -18,7 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 
 
-public class ItemMenuManager extends BaseModMenuManager<ItemMenu, ItemMenuManager.ItemSortMode> {
+public class ItemMenuManager extends BaseModMenuManager {
     public static final ItemMenuManager INSTANCE = new ItemMenuManager();
 
     public ItemMenuManager() {
@@ -35,7 +36,7 @@ public class ItemMenuManager extends BaseModMenuManager<ItemMenu, ItemMenuManage
     }
 
     @Override
-    protected List<ItemSortMode> getSortValues() {
+    protected List<Sortable<ItemStack, ?>> getSortValues() {
         return List.of(ItemSortMode.values());
     }
 
@@ -50,12 +51,12 @@ public class ItemMenuManager extends BaseModMenuManager<ItemMenu, ItemMenuManage
     }
 
     @Override
-    protected void loadGUI(ItemMenu itemMenu) {
+    protected void loadGUI(BaseModMenu itemMenu) {
         super.loadGUI(itemMenu);
     }
 
     @Override
-    public void handleInput(Player player, ItemMenu itemMenu, ClickType clickType, int slotIndex, int button) {
+    public void handleInput(Player player, BaseModMenu itemMenu, ClickType clickType, int slotIndex, int button) {
         if (isFunctional(slotIndex, itemMenu)) {
             handleDefaultInput(player, itemMenu, slotIndex, button);
         } else {
@@ -64,7 +65,7 @@ public class ItemMenuManager extends BaseModMenuManager<ItemMenu, ItemMenuManage
     }
 
     @Override
-    protected boolean isFunctional(int slotIndex, ItemMenu itemMenu) {
+    protected boolean isFunctional(int slotIndex, BaseModMenu itemMenu) {
         return switch (slotIndex) {
             case CLOSE_INDEX, SORT_INDEX, FILTER_INDEX -> true;
             case PREVIOUS_PAGE_INDEX -> itemMenu.getPage() > 1;
@@ -73,7 +74,7 @@ public class ItemMenuManager extends BaseModMenuManager<ItemMenu, ItemMenuManage
         };
     }
 
-    private void claimItem(Player player, int slotIndex, ItemMenu itemMenu) {
+    private void claimItem(Player player, int slotIndex, BaseModMenu itemMenu) {
         ItemStack itemToGive = itemMenu.getContainer().getItem(slotIndex).copy();
         MutableComponent itemText = itemToGive.getHoverName().copy();
 

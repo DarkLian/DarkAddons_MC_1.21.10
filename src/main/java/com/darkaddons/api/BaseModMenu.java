@@ -11,13 +11,13 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class BaseModMenu<T extends BaseModMenu<T, M>, M extends BaseModMenuManager<T, ?>> extends ChestMenu {
-    private final M manager;
+public abstract class BaseModMenu extends ChestMenu {
+    private final BaseModMenuManager manager;
     private long lastClickTime = 0;
     private int page;
     private int pageCount; // This is initialized during buildMenu(), instead of when the instance of a menu is created
 
-    public BaseModMenu(int id, Inventory inv, Container container, int page, M manager) {
+    public BaseModMenu(int id, Inventory inv, Container container, int page, BaseModMenuManager manager) {
         super(MenuType.GENERIC_9x6, id, inv, container, 6);
         this.page = page;
         this.manager = manager;
@@ -39,7 +39,7 @@ public abstract class BaseModMenu<T extends BaseModMenu<T, M>, M extends BaseMod
         this.pageCount = x;
     }
 
-    public M getManager() {
+    public BaseModMenuManager getManager() {
         return this.manager;
     }
 
@@ -56,12 +56,9 @@ public abstract class BaseModMenu<T extends BaseModMenu<T, M>, M extends BaseMod
         if (player.level().isClientSide()) return;
         if (clickType != ClickType.PICKUP) return;
         if (slotIndex < 0 || slotIndex >= 54) return;
-        M manager = this.getManager();
+        BaseModMenuManager manager = this.getManager();
 
-        @SuppressWarnings("unchecked")
-        T menu = (T) this;
-
-        if (manager.isContent(slotIndex, menu) || manager.isFunctional(slotIndex, menu)) {
+        if (manager.isContent(slotIndex, this) || manager.isFunctional(slotIndex, this)) {
             long now = player.level().getGameTime();
             if (now <= getLastClickTime() + 2) {
                 player.displayClientMessage(Component.literal("The menu has been throttled, please slow down!").withStyle(ChatFormatting.RED), false);
@@ -70,7 +67,7 @@ public abstract class BaseModMenu<T extends BaseModMenu<T, M>, M extends BaseMod
                 setLastClickTime(now);
             }
         } else return;
-        manager.handleInput(player, menu, clickType, slotIndex, button);
+        manager.handleInput(player, this, clickType, slotIndex, button);
     }
 
     @Override

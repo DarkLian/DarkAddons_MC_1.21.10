@@ -5,7 +5,7 @@ import com.darkaddons.utils.ItemMenuManager;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 
-public class ItemMenu extends BaseModMenu<ItemMenu, ItemMenuManager> {
+public class ItemMenu extends BaseModMenu {
     public ItemMenu(int id, Inventory inv, Container container, int page) {
         super(id, inv, container, page, ItemMenuManager.INSTANCE);
     }

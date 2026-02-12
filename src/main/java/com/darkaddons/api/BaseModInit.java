@@ -21,7 +21,7 @@ public abstract class BaseModInit implements ModInit {
     protected boolean initialized = false;
     protected boolean searching = false;
 
-    protected abstract BaseModMenuManager<?, ?> getManager();
+    protected abstract BaseModMenuManager getManager();
 
     protected abstract String getDataName();
 

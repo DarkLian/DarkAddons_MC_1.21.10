@@ -23,7 +23,7 @@ import java.util.List;
 
 import static com.darkaddons.utils.ModUtilities.createStaticItem;
 
-public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends Sortable<ItemStack, S>> {
+public abstract class BaseModMenuManager {
     public static final int EMPTY_INDEX = 10;
     public static final int SORT_INDEX = 46;
     public static final int FILTER_INDEX = 47;
@@ -42,9 +42,9 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
     private final List<ItemStack> FILTERED_LIST = new ArrayList<>();
     private final ModInit dataProvider;
     private String currentSearchQuery = "";
-    private S currentSortMode;
+    private Sortable<ItemStack, ?> currentSortMode;
 
-    public BaseModMenuManager(S sortMode, ModInit dataProvider) {
+    public BaseModMenuManager(Sortable<ItemStack, ?> sortMode, ModInit dataProvider) {
         this.currentSortMode = sortMode;
         this.dataProvider = dataProvider;
     }
@@ -53,15 +53,15 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
 
     protected abstract void decorateContent(ItemStack itemStack);
 
-    protected abstract List<S> getSortValues();
+    protected abstract List<Sortable<ItemStack, ?>> getSortValues();
 
-    protected abstract void handleInput(Player player, T menu, ClickType clickType, int slotIndex, int button);
+    protected abstract void handleInput(Player player, BaseModMenu menu, ClickType clickType, int slotIndex, int button);
 
-    protected abstract T createMenuInstance(int containerId, Inventory playerInventory);
+    protected abstract BaseModMenu createMenuInstance(int containerId, Inventory playerInventory);
 
     protected abstract String MenuName();
 
-    protected abstract boolean isFunctional(int slotIndex, T menu);
+    protected abstract boolean isFunctional(int slotIndex, BaseModMenu menu);
 
     protected int getPageContentCount(int page) {
         // 0 ~ 28
@@ -76,13 +76,13 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
         return (a - 1) + 10 + 2 * ((a - 1) / 7);
     }
 
-    private void createMenu(T menu) {
+    private void createMenu(BaseModMenu menu) {
         drawBorders(menu);
         loadGUI(menu);
         loadContent(menu);
     }
 
-    private void drawBorders(T menu) {
+    private void drawBorders(BaseModMenu menu) {
         Container container = menu.getContainer();
         for (int i = 0; i < 9; i++) {
             container.setItem(i, GLASS_PANE);
@@ -94,7 +94,7 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
         }
     }
 
-    protected void loadGUI(T menu) {
+    protected void loadGUI(BaseModMenu menu) {
         Container container = menu.getContainer();
         int page = menu.getPage();
         int totalPages = menu.getPageCount();
@@ -109,7 +109,7 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
 
         List<Component> sortLore = new ArrayList<>();
         sortLore.add(EMPTY_LINE);
-        for (S mode : getSortValues()) {
+        for (Sortable<ItemStack, ?> mode : getSortValues()) {
             boolean selected = (mode == getCurrentSortMode());
             String prefix = selected ? "▶ " : "";
             ChatFormatting color = selected ? ChatFormatting.WHITE : ChatFormatting.GRAY;
@@ -139,7 +139,7 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
         container.setItem(NEXT_PAGE_INDEX, (page < totalPages) ? NEXT_ARROW : GLASS_PANE);
     }
 
-    private void loadContent(T menu) {
+    private void loadContent(BaseModMenu menu) {
         Container container = menu.getContainer();
         int page = menu.getPage();
         int pageContentCount = getPageContentCount(page);
@@ -156,7 +156,7 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
         }
     }
 
-    private void buildMenu(T menu) {
+    private void buildMenu(BaseModMenu menu) {
         Container container = menu.getContainer();
         container.clearContent();
         applyFilterAndSort();
@@ -170,7 +170,7 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
         }
     }
 
-    protected void shiftPage(Player player, T menu, int delta, int button) {
+    protected void shiftPage(Player player, BaseModMenu menu, int delta, int button) {
         int page = menu.getPage();
         if (button == 0) {
             menu.setPage(page + delta);
@@ -180,8 +180,8 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
         refreshMenu(player, menu);
     }
 
-    protected void refreshMenu(Player player, T menu) {
-        if (player.containerMenu instanceof BaseModMenu<?, ?> openMenu) {
+    protected void refreshMenu(Player player, BaseModMenu menu) {
+        if (player.containerMenu instanceof BaseModMenu openMenu) {
             if (openMenu.getManager() == this) {
                 buildMenu(menu);
                 menu.broadcastChanges();
@@ -191,20 +191,20 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
 
     public void callMenu(Player player) {
         player.openMenu(new SimpleMenuProvider((containerId, playerInventory, p) -> {
-            T menu = createMenuInstance(containerId, playerInventory);
+            BaseModMenu menu = createMenuInstance(containerId, playerInventory);
             buildMenu(menu);
             return menu;
         }, Component.literal(MenuName())));
     }
 
-    public void handleSortClick(Player player, T menu, int button) {
+    public void handleSortClick(Player player, BaseModMenu menu, int button) {
         if (button == 0) setCurrentSortMode(getCurrentSortMode().next());
         else if (button == 1) setCurrentSortMode(getCurrentSortMode().prev());
         menu.setPage(DEFAULT_PAGE);
         refreshMenu(player, menu);
     }
 
-    public void handleFilterClick(Player player, T menu, int button) {
+    public void handleFilterClick(Player player, BaseModMenu menu, int button) {
         if (button == 0) {
             getDataProvider().setSearching(true);
             closeContainer(player);
@@ -221,7 +221,7 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
 
     public void applyFilterAndSort() {
         String searchQuery = getCurrentSearchQuery();
-        S mode = getCurrentSortMode();
+        Sortable<ItemStack, ?> mode = getCurrentSortMode();
         Comparator<ItemStack> rule = mode.getSortRule();
 
         List<ItemStack> items = new ArrayList<>(getDataProvider().getCache());
@@ -243,7 +243,7 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
         filteredList.addAll(items);
     }
 
-    protected boolean handleDefaultInput(Player player, T menu, int slotIndex, int button) {
+    protected boolean handleDefaultInput(Player player, BaseModMenu menu, int slotIndex, int button) {
         switch (slotIndex) {
             case CLOSE_INDEX -> {
                 closeContainer(player);
@@ -269,7 +269,7 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
         return false;
     }
 
-    protected boolean isContent(int slotIndex, T menu) {
+    protected boolean isContent(int slotIndex, BaseModMenu menu) {
         Integer lastMusicIndex = getLastContentSlotIndex(menu.getPage());
         if (lastMusicIndex != null && slotIndex >= 10 && slotIndex <= lastMusicIndex) {
             return slotIndex % 9 != 0 && slotIndex % 9 != 8;
@@ -286,11 +286,11 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
         this.currentSearchQuery = currentSearchQuery;
     }
 
-    public S getCurrentSortMode() {
+    public Sortable<ItemStack, ?> getCurrentSortMode() {
         return this.currentSortMode;
     }
 
-    public void setCurrentSortMode(S sortMode) {
+    public void setCurrentSortMode(Sortable<ItemStack, ?> sortMode) {
         this.currentSortMode = sortMode;
     }
 
