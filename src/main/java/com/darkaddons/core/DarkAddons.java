@@ -1,8 +1,7 @@
 package com.darkaddons.core;
 
-import com.darkaddons.init.MusicInit;
+import com.darkaddons.api.ModInit;
 import com.darkaddons.utils.MusicLoopHandler;
-import com.darkaddons.utils.MusicMenuManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
@@ -26,16 +25,19 @@ public class DarkAddons implements ModInitializer {
                 MusicLoopHandler.INSTANCE.onTick(player);
             }
         });
+
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, player, params) -> {
-            if (MusicInit.INSTANCE.isSearching()) {
-                String input = message.signedContent();
-                MusicMenuManager.INSTANCE.setCurrentSearchQuery(input);
-                MusicInit.INSTANCE.setSearching(false);
-                player.level().getServer().execute(() -> MusicInit.INSTANCE.trigger(player.level(), player));
-                return false;
+            for (ModInit<?> init : ModInit.REGISTRY) {
+                if (init.isSearching()) {
+                    String input = message.signedContent();
+                    init.handleSearchInput(player, input);
+                    player.level().getServer().execute(() -> init.trigger(player.level(), player));
+                    return false;
+                }
             }
             return true;
         });
+
         PayloadTypeRegistry.playS2C().register(ModPackets.OpenChatPayload.ID, ModPackets.OpenChatPayload.CODEC);
 
 

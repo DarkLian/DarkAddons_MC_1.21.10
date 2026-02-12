@@ -74,7 +74,7 @@ public class ModSounds {
         return MUSIC_ENTRIES.get(index).displayName();
     }
 
-    public static Item getItem(int index) {
+    public static Item getIcon(int index) {
         if (isInvalidIndex(index)) return null;
         return MUSIC_ENTRIES.get(index).icon();
     }

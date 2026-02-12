@@ -17,7 +17,7 @@ import static com.darkaddons.core.ModSounds.getSoundDurationTick;
 
 public class MusicLoopHandler {
     public static final MusicLoopHandler INSTANCE = new MusicLoopHandler();
-    private static Long endTime = null;
+    private Long endTime = null;
 
     public void startTracking(Player player, String soundName) {
         long soundDurationTick = Objects.requireNonNull(getSoundDurationTick(soundName));

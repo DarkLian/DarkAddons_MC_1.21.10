@@ -48,53 +48,6 @@ public class MusicMenuManager extends BaseModMenuManager<MusicMenu, MusicMenuMan
         super(MusicSortMode.DEFAULT, MusicInit.INSTANCE);
     }
 
-    @Override
-    public void loadContent(MusicMenu musicMenu) {
-        Container container = musicMenu.getContainer();
-        int page = musicMenu.getPage();
-        int pageMusicCount = getPageContentCount(page);
-        if (pageMusicCount == 0) {
-            container.setItem(EMPTY_INDEX, EMPTY_FEATHER);
-        } else {
-            for (int i = 0; i < pageMusicCount; i++) {
-                int musicIndex = i + 28 * (page - 1);
-                int slotIndex = 10 + i + 2 * (i / 7);
-                ItemStack menuItem = getFilteredList().get(musicIndex).copy();
-                boolean isSelected = menuItem.getOrDefault(ModComponents.SOUND_NAME, "").equals(getCurrentTrack());
-                ItemLore itemLore = menuItem.getOrDefault(DataComponents.LORE, ItemLore.EMPTY).withLineAdded(isSelected ? SELECTED_LORE : UNSELECTED_LORE);
-                menuItem.set(DataComponents.LORE, itemLore);
-                menuItem.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, isSelected);
-                container.setItem(slotIndex, menuItem);
-            }
-        }
-    }
-
-    @Override
-    public List<Component> getSortLore() {
-        List<Component> sortLore = new ArrayList<>();
-        sortLore.add(EMPTY_LINE);
-        for (MusicSortMode mode : MusicSortMode.values()) {
-            boolean selected = (mode == getCurrentSortMode());
-            String prefix = selected ? "▶ " : "";
-            ChatFormatting color = selected ? ChatFormatting.WHITE : ChatFormatting.GRAY;
-            sortLore.add(ModUtilities.literal(prefix + mode.getDisplayName(), color));
-        }
-        sortLore.add(EMPTY_LINE);
-        sortLore.add(ModUtilities.literal("Right-Click to go backwards!", ChatFormatting.WHITE));
-        sortLore.add(ModUtilities.literal("Click to switch filter!", ChatFormatting.GREEN));
-        return sortLore;
-    }
-
-    @Override
-    public MusicMenu createMenuInstance(int containerId, Inventory playerInventory) {
-        return new MusicMenu(containerId, playerInventory, new SimpleContainer(54), DEFAULT_PAGE);
-    }
-
-    @Override
-    public String MenuName() {
-        return "Music Menu";
-    }
-
     public String getCurrentTrack() {
         return currentTrack;
     }
@@ -112,7 +65,35 @@ public class MusicMenuManager extends BaseModMenuManager<MusicMenu, MusicMenuMan
     }
 
     @Override
-    public void loadGUI(MusicMenu musicMenu) {
+    protected String getSearchName(ItemStack stack) {
+        return stack.getOrDefault(ModComponents.SOUND_NAME, "");
+    }
+
+    @Override
+    protected void decorateContent(ItemStack s) {
+        boolean isSelected = s.getOrDefault(ModComponents.SOUND_NAME, "").equals(getCurrentTrack());
+        ItemLore itemLore = s.getOrDefault(DataComponents.LORE, ItemLore.EMPTY).withLineAdded(isSelected ? SELECTED_LORE : UNSELECTED_LORE);
+        s.set(DataComponents.LORE, itemLore);
+        s.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, isSelected);
+    }
+
+    @Override
+    protected List<MusicSortMode> getSortValues() {
+        return List.of(MusicSortMode.values());
+    }
+
+    @Override
+    protected MusicMenu createMenuInstance(int containerId, Inventory playerInventory) {
+        return new MusicMenu(containerId, playerInventory, new SimpleContainer(54), DEFAULT_PAGE);
+    }
+
+    @Override
+    protected String MenuName() {
+        return "Music Menu";
+    }
+
+    @Override
+    protected void loadGUI(MusicMenu musicMenu) {
         super.loadGUI(musicMenu);
 
         Container container = musicMenu.getContainer();
@@ -141,23 +122,19 @@ public class MusicMenuManager extends BaseModMenuManager<MusicMenu, MusicMenuMan
     }
 
     @Override
-    public void handleInput(Player player, MusicMenu menu, ClickType clickType, int slotIndex, int button) {
-        if (isFunctional(slotIndex, menu)) {
+    public void handleInput(Player player, MusicMenu musicMenu, ClickType clickType, int slotIndex, int button) {
+        if (isFunctional(slotIndex, musicMenu)) {
+            if (handleDefaultInput(player, musicMenu, slotIndex, button)) return;
             switch (slotIndex) {
-                case CLOSE_INDEX -> closeContainer(player);
-                case RESET_INDEX -> handleResetClick(player, menu);
-                case MODE_INDEX -> handlePlayModeClick(player, menu, button);
-                case SORT_INDEX -> handleSortClick(player, menu, button);
-                case FILTER_INDEX -> handleFilterClick(player, menu, button);
-                case PREVIOUS_PAGE_INDEX -> shiftPage(player, menu, -1, button);
-                case NEXT_PAGE_INDEX -> shiftPage(player, menu, 1, button);
+                case RESET_INDEX -> handleResetClick(player, musicMenu);
+                case MODE_INDEX -> handlePlayModeClick(player, musicMenu, button);
             }
-        } else if (isContent(slotIndex, menu)) {
-            handleMusicSwap(player, slotIndex, menu);
+        } else {
+            handleMusicSwap(player, slotIndex, musicMenu);
         }
     }
 
-    public void handleResetClick(Player player, MusicMenu musicMenu) {
+    private void handleResetClick(Player player, MusicMenu musicMenu) {
         MusicLoopHandler.INSTANCE.stopTracking();
         stopMusic(player);
         player.displayClientMessage(Component.literal("Reset Music!").withStyle(ChatFormatting.RED), false);
@@ -165,7 +142,7 @@ public class MusicMenuManager extends BaseModMenuManager<MusicMenu, MusicMenuMan
         refreshMenu(player, musicMenu);
     }
 
-    public void handlePlayModeClick(Player player, MusicMenu musicMenu, int button) {
+    private void handlePlayModeClick(Player player, MusicMenu musicMenu, int button) {
         if (button == 0) setCurrentPlayMode(getCurrentPlayMode().next());
         else if (button == 1) setCurrentPlayMode(getCurrentPlayMode().prev());
         refreshMenu(player, musicMenu);
@@ -177,7 +154,7 @@ public class MusicMenuManager extends BaseModMenuManager<MusicMenu, MusicMenuMan
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), getSound(soundName), SoundSource.RECORDS, 1.0f, 1.0f);
     }
 
-    public void handleMusicSwap(Player player, int slotIndex, MusicMenu musicMenu) {
+    private void handleMusicSwap(Player player, int slotIndex, MusicMenu musicMenu) {
         Container container = musicMenu.getContainer();
         String newSoundName = container.getItem(slotIndex).getOrDefault(ModComponents.SOUND_NAME, "");
         boolean isSelected = newSoundName.equals(getCurrentTrack());
@@ -193,22 +170,13 @@ public class MusicMenuManager extends BaseModMenuManager<MusicMenu, MusicMenuMan
     }
 
     @Override
-    public boolean isFunctional(int slotIndex, MusicMenu musicMenu) {
+    protected boolean isFunctional(int slotIndex, MusicMenu musicMenu) {
         return switch (slotIndex) {
             case CLOSE_INDEX, RESET_INDEX, MODE_INDEX, SORT_INDEX, FILTER_INDEX -> true;
             case PREVIOUS_PAGE_INDEX -> musicMenu.getPage() > 1;
             case NEXT_PAGE_INDEX -> musicMenu.getPage() < musicMenu.getPageCount();
             default -> false;
         };
-    }
-
-    @Override
-    public boolean isContent(int slotIndex, MusicMenu musicMenu) {
-        Integer lastMusicIndex = getLastContentSlotIndex(musicMenu.getPage());
-        if (lastMusicIndex != null && slotIndex >= 10 && slotIndex <= lastMusicIndex) {
-            return slotIndex % 9 != 0 && slotIndex % 9 != 8;
-        }
-        return false;
     }
 
     public void stopMusic(Player player) {
