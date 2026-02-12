@@ -27,7 +27,7 @@ public class DarkAddons implements ModInitializer {
         });
 
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, player, params) -> {
-            for (ModInit<?> init : ModInit.REGISTRY) {
+            for (ModInit init : ModInit.REGISTRY) {
                 if (init.isSearching()) {
                     String input = message.signedContent();
                     init.handleSearchInput(player, input);

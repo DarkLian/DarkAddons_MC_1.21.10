@@ -12,7 +12,7 @@ import java.util.List;
 import static com.darkaddons.core.ModItems.getItem;
 import static com.darkaddons.core.ModItems.getTotalItemCount;
 
-public class ItemInit extends BaseModInit<ItemStack, ItemMenuManager> {
+public class ItemInit extends BaseModInit {
     public static final ItemInit INSTANCE = new ItemInit();
 
     static {

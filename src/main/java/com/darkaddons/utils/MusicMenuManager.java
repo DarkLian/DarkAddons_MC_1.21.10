@@ -31,7 +31,7 @@ import static com.darkaddons.core.ModSounds.getSound;
 import static com.darkaddons.core.ModSounds.getSoundDuration;
 import static com.darkaddons.utils.ModUtilities.createStaticItem;
 
-public class MusicMenuManager extends BaseModMenuManager<MusicMenu, MusicMenuManager.MusicSortMode, MusicInit> {
+public class MusicMenuManager extends BaseModMenuManager<MusicMenu, MusicMenuManager.MusicSortMode> {
     public static final int STATUS_INDEX = 4;
     public static final int MODE_INDEX = 45;
     public static final int RESET_INDEX = 53;

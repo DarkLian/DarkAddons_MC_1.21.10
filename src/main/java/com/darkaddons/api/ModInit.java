@@ -1,19 +1,20 @@
 package com.darkaddons.api;
 
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public interface ModInit<T> {
-    List<ModInit<?>> REGISTRY = new ArrayList<>();
+public interface ModInit {
+    List<ModInit> REGISTRY = new ArrayList<>();
 
-    static void register(ModInit<?> init) {
+    static void register(ModInit init) {
         REGISTRY.add(init);
     }
 
-    List<T> getCache();
+    List<ItemStack> getCache();
 
     boolean isInitialized();
 

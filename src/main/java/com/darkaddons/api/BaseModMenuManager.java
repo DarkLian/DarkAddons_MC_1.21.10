@@ -23,7 +23,7 @@ import java.util.List;
 
 import static com.darkaddons.utils.ModUtilities.createStaticItem;
 
-public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends Sortable<ItemStack, S>, P extends ModInit<ItemStack>> {
+public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends Sortable<ItemStack, S>> {
     public static final int EMPTY_INDEX = 10;
     public static final int SORT_INDEX = 46;
     public static final int FILTER_INDEX = 47;
@@ -40,11 +40,11 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
     protected final ItemStack CLOSE_BARRIER = createStaticItem(Items.BARRIER, "Close", ChatFormatting.RED);
     protected final MutableComponent EMPTY_LINE = ModUtilities.literal("", ChatFormatting.WHITE);
     private final List<ItemStack> FILTERED_LIST = new ArrayList<>();
-    private final P dataProvider;
+    private final ModInit dataProvider;
     private String currentSearchQuery = "";
     private S currentSortMode;
 
-    public BaseModMenuManager(S sortMode, P dataProvider) {
+    public BaseModMenuManager(S sortMode, ModInit dataProvider) {
         this.currentSortMode = sortMode;
         this.dataProvider = dataProvider;
     }
@@ -294,7 +294,7 @@ public abstract class BaseModMenuManager<T extends BaseModMenu<T, ?>, S extends 
         this.currentSortMode = sortMode;
     }
 
-    protected P getDataProvider() {
+    protected ModInit getDataProvider() {
         return dataProvider;
     }
 

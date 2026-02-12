@@ -17,7 +17,7 @@ import java.util.List;
 import static com.darkaddons.core.ModSounds.*;
 import static com.darkaddons.utils.ModUtilities.literal;
 
-public class MusicInit extends BaseModInit<ItemStack, MusicMenuManager> {
+public class MusicInit extends BaseModInit {
 
     public static final MusicInit INSTANCE = new MusicInit();
 

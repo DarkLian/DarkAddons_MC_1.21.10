@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class BaseModMenu<T extends BaseModMenu<T, M>, M extends BaseModMenuManager<T, ?, ?>> extends ChestMenu {
+public abstract class BaseModMenu<T extends BaseModMenu<T, M>, M extends BaseModMenuManager<T, ?>> extends ChestMenu {
     private final M manager;
     private long lastClickTime = 0;
     private int page;

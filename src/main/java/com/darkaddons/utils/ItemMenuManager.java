@@ -18,7 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 
 
-public class ItemMenuManager extends BaseModMenuManager<ItemMenu, ItemMenuManager.ItemSortMode, ItemInit> {
+public class ItemMenuManager extends BaseModMenuManager<ItemMenu, ItemMenuManager.ItemSortMode> {
     public static final ItemMenuManager INSTANCE = new ItemMenuManager();
 
     public ItemMenuManager() {

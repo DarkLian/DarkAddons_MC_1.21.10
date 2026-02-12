@@ -5,6 +5,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -13,19 +14,19 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class BaseModInit<T, M extends BaseModMenuManager<?, ?, ?>> implements ModInit<T> {
+public abstract class BaseModInit implements ModInit {
 
     protected final AtomicBoolean isCurrentlyLoading = new AtomicBoolean(false);
-    protected final List<T> cache = new ArrayList<>();
+    protected final List<ItemStack> cache = new ArrayList<>();
     protected boolean initialized = false;
     protected boolean searching = false;
 
-    protected abstract M getManager();
+    protected abstract BaseModMenuManager<?, ?> getManager();
 
     protected abstract String getDataName();
 
     @Override
-    public List<T> getCache() {
+    public List<ItemStack> getCache() {
         return new ArrayList<>(cache);
     }
 
@@ -58,7 +59,7 @@ public abstract class BaseModInit<T, M extends BaseModMenuManager<?, ?, ?>> impl
     @Override
     public void trigger(Level level, Player player) {
         boolean clear = true;
-        for (ModInit<?> init : ModInit.REGISTRY) {
+        for (ModInit init : ModInit.REGISTRY) {
             if (init.isSearching()) {
                 clear = false;
                 init.setSearching(false);
