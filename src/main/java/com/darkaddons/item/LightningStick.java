@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.darkaddons.util.ModUtilities.getNearByLivingEntities;
+import static com.darkaddons.utils.ModUtilities.getNearByLivingEntities;
 
 public class LightningStick extends Item {
     private static final double ABILITY_RADIUS = 10.0;

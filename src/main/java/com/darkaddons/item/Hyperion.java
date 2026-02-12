@@ -25,8 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.darkaddons.util.ModUtilities.getNearByLivingEntities;
-import static com.darkaddons.util.ModUtilities.getTeleportTarget;
+import static com.darkaddons.utils.ModUtilities.getNearByLivingEntities;
+import static com.darkaddons.utils.ModUtilities.getTeleportTarget;
 
 public class Hyperion extends Item {
     private static final int COOLDOWN_TICKS = 3;
