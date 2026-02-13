@@ -1,5 +1,6 @@
 package com.darkaddons.utils;
 
+import com.darkaddons.core.ModComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -53,5 +54,16 @@ public class ModUtilities {
         itemStack.set(DataComponents.CUSTOM_NAME, ModUtilities.literal(name, color));
         itemStack.set(DataComponents.LORE, ItemLore.EMPTY);
         return itemStack;
+    }
+
+    public static MutableComponent getItemTypeLore(ItemStack itemStack) {
+        MutableComponent rarity = itemStack.getOrDefault(ModComponents.RARITY, ModComponents.Rarity.COMMON).getDisplayName();
+        ChatFormatting color = getRarityColor(itemStack);
+        MutableComponent itemType = itemStack.getOrDefault(ModComponents.ITEM_TYPE, ModComponents.ItemType.TOOL).getDisplayName();
+        return rarity.append(Component.literal(" ")).append(itemType).withStyle(color, ChatFormatting.BOLD);
+    }
+
+    public static ChatFormatting getRarityColor(ItemStack itemStack) {
+        return itemStack.getOrDefault(ModComponents.RARITY, ModComponents.Rarity.COMMON).getColor();
     }
 }

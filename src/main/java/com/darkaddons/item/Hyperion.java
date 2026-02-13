@@ -7,9 +7,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -25,8 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.darkaddons.utils.ModUtilities.getNearByLivingEntities;
-import static com.darkaddons.utils.ModUtilities.getTeleportTarget;
+import static com.darkaddons.utils.ModUtilities.*;
 
 public class Hyperion extends Item {
     private static final int COOLDOWN_TICKS = 3;
@@ -44,6 +44,11 @@ public class Hyperion extends Item {
     }
 
     @Override
+    public @NotNull Component getName(ItemStack stack) {
+        return Component.literal("Hyperion").withStyle(getRarityColor(stack));
+    }
+
+    @Override
     public @NotNull InteractionResult use(Level level, Player player, InteractionHand hand) {
         if (level.isClientSide()) return InteractionResult.PASS;
 
@@ -51,7 +56,7 @@ public class Hyperion extends Item {
         int durability = itemStack.getOrDefault(ModComponents.DURABILITY, 0);
 
         if (durability <= 0) {
-            player.displayClientMessage(Component.literal("Insufficient durability, please repair your weapon"), false);
+            player.displayClientMessage(Component.literal("Insufficient durability, get a new one!"), false);
             player.getCooldowns().addCooldown(itemStack, COOLDOWN_TICKS);
             return InteractionResult.PASS;
         }
@@ -75,24 +80,39 @@ public class Hyperion extends Item {
         player.teleportTo(targetX, targetY, targetZ);
 
         if (level instanceof ServerLevel serverLevel) {
-            for (int i = -3; i <= 3; i++) {
-                double tempX = player.getX() + i;
-                serverLevel.sendParticles(ParticleTypes.EXPLOSION, tempX, player.getY(), player.getZ(), 5, 0, 0, 0, 0);
+            serverLevel.sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY() + 1, player.getZ(), 1, 0, 0, 0, 0);
+
+            double radius = 4.0;
+            int particleCount = 50;
+
+            for (int i = 0; i < particleCount; i++) {
+                double theta = level.random.nextDouble() * Math.PI * 2;
+                double phi = Math.acos(2 * level.random.nextDouble() - 1);
+
+                double thickRadius = radius + (level.random.nextDouble() - 0.5);
+
+                double x = thickRadius * Math.sin(phi) * Math.cos(theta);
+                double z = thickRadius * Math.cos(phi);
+
+                serverLevel.sendParticles(
+                        ParticleTypes.EXPLOSION,
+                        player.getX() + x,
+                        player.getY(),
+                        player.getZ() + z,
+                        1, 0, 0, 0, 0
+                );
             }
 
-            for (int i = -3; i <= 3; i++) {
-                double tempZ = player.getZ() + i;
-                serverLevel.sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(), tempZ, 5, 0, 0, 0, 0);
-            }
-
-            serverLevel.sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(), player.getZ(), 5, 0, 0, 0, 0);
+            serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.DRAGON_FIREBALL_EXPLODE,
+                    SoundSource.PLAYERS, 1.0f, 2.0f);
         }
 
         List<LivingEntity> targets = getNearByLivingEntities(level, player, ABILITY_RADIUS, LivingEntity.class);
-        DamageSource damageSource = level.damageSources().magic();
         if (!targets.isEmpty()) {
             for (LivingEntity target : targets) {
-                target.hurt(damageSource, DAMAGE_AMOUNT);
+                float finalDamage = (target.getHealth() - DAMAGE_AMOUNT) <= 0 ? 0 : (target.getHealth() - DAMAGE_AMOUNT);
+                target.setHealth(finalDamage);
             }
             String enemyNoun = (targets.size() == 1) ? " enemy" : " enemies";
             String damageText = String.format("%.1f", DAMAGE_AMOUNT * targets.size());
@@ -115,10 +135,26 @@ public class Hyperion extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, Item.TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
-        String durability = String.valueOf(itemStack.getOrDefault(ModComponents.DURABILITY, 0));
-        consumer.accept(Component.literal("Durability: ").append(Component.literal(durability).withStyle(ChatFormatting.DARK_AQUA)));
+    @SuppressWarnings("deprecation")
+    public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
+        int durability = itemStack.getOrDefault(ModComponents.DURABILITY, 0);
+        consumer.accept(Component.literal("Ability: Wither Impact").withStyle(ChatFormatting.GOLD));
+        consumer.accept(Component.literal("Teleports you ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal("10 blocks").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(" ahead and").withStyle(ChatFormatting.GRAY)));
+        consumer.accept(Component.literal("implodes dealing ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal("massive damage").withStyle(ChatFormatting.RED))
+                .append(Component.literal(" to").withStyle(ChatFormatting.GRAY)));
+        consumer.accept(Component.literal("nearby enemies.").withStyle(ChatFormatting.GRAY));
+
+        consumer.accept(Component.empty());
+
+        ChatFormatting durabilityColor = durability > 50 ? ChatFormatting.GREEN : (durability > 20 ? ChatFormatting.YELLOW : ChatFormatting.RED);
+        consumer.accept(Component.literal("Durability: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.valueOf(durability)).withStyle(durabilityColor)));
+
+        consumer.accept(Component.empty());
+
+        consumer.accept(getItemTypeLore(itemStack));
     }
-
-
 }

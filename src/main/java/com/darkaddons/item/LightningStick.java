@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.darkaddons.utils.ModUtilities.getNearByLivingEntities;
+import static com.darkaddons.utils.ModUtilities.*;
 
 public class LightningStick extends Item {
     private static final double ABILITY_RADIUS = 10.0;
@@ -29,6 +29,11 @@ public class LightningStick extends Item {
 
     public LightningStick(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public @NotNull Component getName(ItemStack stack) {
+        return Component.literal("Hellstorm Wand").withStyle(getRarityColor(stack));
     }
 
     @Override
@@ -71,8 +76,25 @@ public class LightningStick extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, Item.TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
-        String currentCharges = String.valueOf(itemStack.getOrDefault(ModComponents.CHARGE, 0));
-        consumer.accept(Component.literal("Charge left: ").append(Component.literal(currentCharges).withStyle(ChatFormatting.DARK_AQUA)));
+    @SuppressWarnings("deprecation")
+    public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
+        int charges = itemStack.getOrDefault(ModComponents.CHARGE, 0);
+
+        consumer.accept(Component.literal("Ability: Thunderlord").withStyle(ChatFormatting.GOLD));
+
+        consumer.accept(Component.literal("Calls down harmless ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal("lightning strikes").withStyle(ChatFormatting.AQUA))
+                .append(Component.literal(" on").withStyle(ChatFormatting.GRAY)));
+        consumer.accept(Component.literal("nearby enemies.").withStyle(ChatFormatting.GRAY));
+
+        consumer.accept(Component.empty());
+
+        consumer.accept(Component.literal("Charges: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.valueOf(charges)).withStyle(ChatFormatting.YELLOW)));
+        consumer.accept(Component.literal("Shift + Right-Click to reload!").withStyle(ChatFormatting.DARK_GRAY));
+
+        consumer.accept(Component.empty());
+
+        consumer.accept(getItemTypeLore(itemStack));
     }
 }

@@ -1,5 +1,6 @@
 package com.darkaddons.item;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -7,21 +8,28 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-import static com.darkaddons.utils.ModUtilities.distance;
-import static com.darkaddons.utils.ModUtilities.getNearByLivingEntities;
+import static com.darkaddons.utils.ModUtilities.*;
 
 public class TeleportStick extends Item {
-    private static final double ABILITY_RADIUS = 20.0;
-    private static final int SUCCESS_COOLDOWN_TICKS = 100;
-    private static final int FAIL_COOLDOWN_TICKS = 20;
+    private static final double ABILITY_RADIUS = 40.0;
+    private static final int SUCCESS_COOLDOWN_TICKS = 5;
+    private static final int FAIL_COOLDOWN_TICKS = 5;
 
     public TeleportStick(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public @NotNull Component getName(ItemStack stack) {
+        return Component.literal("Aspect of the Warp").withStyle(getRarityColor(stack));
     }
 
     @Override
@@ -50,5 +58,20 @@ public class TeleportStick extends Item {
         player.displayClientMessage(Component.literal("Teleported successfully!"), false);
         player.getCooldowns().addCooldown(itemStack, SUCCESS_COOLDOWN_TICKS);
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
+        consumer.accept(Component.literal("Ability: Instant Transmission").withStyle(ChatFormatting.GOLD));
+
+        consumer.accept(Component.literal("Instantly teleport to the").withStyle(ChatFormatting.GRAY));
+        consumer.accept(Component.literal("nearest living entity ").withStyle(ChatFormatting.LIGHT_PURPLE)
+                .append(Component.literal("within ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("10 blocks").withStyle(ChatFormatting.GREEN)));
+
+        consumer.accept(Component.empty());
+
+        consumer.accept(getItemTypeLore(itemStack));
     }
 }

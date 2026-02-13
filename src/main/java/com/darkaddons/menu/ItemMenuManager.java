@@ -3,6 +3,7 @@ package com.darkaddons.menu;
 import com.darkaddons.api.BaseModMenu;
 import com.darkaddons.api.BaseModMenuManager;
 import com.darkaddons.api.Sortable;
+import com.darkaddons.core.ModComponents;
 import com.darkaddons.init.ItemInit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -77,10 +78,7 @@ public class ItemMenuManager extends BaseModMenuManager {
         ItemStack itemToGive = itemMenu.getContainer().getItem(slotIndex).copy();
         MutableComponent itemText = itemToGive.getHoverName().copy();
 
-        itemText.withStyle(style -> style
-                .withColor(itemToGive.getRarity().color())
-                .withHoverEvent(new HoverEvent.ShowItem(itemToGive))
-        );
+        itemText.withStyle(style -> style.withHoverEvent(new HoverEvent.ShowItem(itemToGive)));
 
         if (itemToGive.getMaxStackSize() == 1 && player.getInventory().getFreeSlot() == -1) {
             player.displayClientMessage(Component.literal("Your inventory is full!").withStyle(ChatFormatting.RED), false);
@@ -98,7 +96,8 @@ public class ItemMenuManager extends BaseModMenuManager {
     public enum ItemSortMode implements Sortable<ItemStack, ItemSortMode> {
         DEFAULT("Default", null),
         A_Z("A-Z", Comparator.comparing(s -> s.getHoverName().getString())),
-        Z_A("Z-A", Comparator.comparing((ItemStack s) -> s.getHoverName().getString()).reversed());
+        Z_A("Z-A", Comparator.comparing((ItemStack s) -> s.getHoverName().getString()).reversed()),
+        RARITY("Rarity", Comparator.comparing(s -> s.getOrDefault(ModComponents.RARITY, ModComponents.Rarity.COMMON)));
 
         private static final ItemSortMode[] MODES = values();
         private final String displayName;
