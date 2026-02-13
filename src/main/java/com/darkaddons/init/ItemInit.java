@@ -2,7 +2,7 @@ package com.darkaddons.init;
 
 import com.darkaddons.api.BaseModInit;
 import com.darkaddons.api.ModInit;
-import com.darkaddons.utils.ItemMenuManager;
+import com.darkaddons.menu.ItemMenuManager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 

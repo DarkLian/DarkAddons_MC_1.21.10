@@ -1,6 +1,7 @@
 package com.darkaddons.utils;
 
 import com.darkaddons.core.ModComponents;
+import com.darkaddons.menu.MusicMenuManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;

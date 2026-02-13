@@ -3,7 +3,7 @@ package com.darkaddons.init;
 import com.darkaddons.api.BaseModInit;
 import com.darkaddons.api.ModInit;
 import com.darkaddons.core.ModComponents;
-import com.darkaddons.utils.MusicMenuManager;
+import com.darkaddons.menu.MusicMenuManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvent;

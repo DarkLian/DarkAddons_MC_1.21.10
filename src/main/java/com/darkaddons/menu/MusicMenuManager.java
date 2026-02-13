@@ -1,4 +1,4 @@
-package com.darkaddons.utils;
+package com.darkaddons.menu;
 
 import com.darkaddons.api.BaseModMenu;
 import com.darkaddons.api.BaseModMenuManager;
@@ -6,7 +6,8 @@ import com.darkaddons.api.MenuOption;
 import com.darkaddons.api.Sortable;
 import com.darkaddons.core.ModComponents;
 import com.darkaddons.init.MusicInit;
-import com.darkaddons.menu.MusicMenu;
+import com.darkaddons.utils.ModUtilities;
+import com.darkaddons.utils.MusicLoopHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;

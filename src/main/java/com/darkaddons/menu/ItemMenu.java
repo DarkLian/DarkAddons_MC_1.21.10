@@ -1,7 +1,6 @@
 package com.darkaddons.menu;
 
 import com.darkaddons.api.BaseModMenu;
-import com.darkaddons.utils.ItemMenuManager;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 

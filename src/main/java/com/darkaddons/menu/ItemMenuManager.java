@@ -1,10 +1,9 @@
-package com.darkaddons.utils;
+package com.darkaddons.menu;
 
 import com.darkaddons.api.BaseModMenu;
 import com.darkaddons.api.BaseModMenuManager;
 import com.darkaddons.api.Sortable;
 import com.darkaddons.init.ItemInit;
-import com.darkaddons.menu.ItemMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;

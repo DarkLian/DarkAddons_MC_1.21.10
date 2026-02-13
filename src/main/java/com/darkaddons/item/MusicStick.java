@@ -1,7 +1,7 @@
 package com.darkaddons.item;
 
 import com.darkaddons.init.MusicInit;
-import com.darkaddons.utils.MusicMenuManager;
+import com.darkaddons.menu.MusicMenuManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
