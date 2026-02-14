@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.darkaddons.utils.ModUtilities.createStaticItem;
+import static com.darkaddons.utils.ModUtilities.getOptionLore;
 
 public abstract class BaseModMenuManager {
     public static final int EMPTY_INDEX = 10;
@@ -110,14 +111,12 @@ public abstract class BaseModMenuManager {
         List<Component> sortLore = new ArrayList<>();
         sortLore.add(EMPTY_LINE);
         for (Sortable<ItemStack, ?> mode : getSortValues()) {
-            boolean selected = (mode == getCurrentSortMode());
-            String prefix = selected ? "▶ " : "";
-            ChatFormatting color = selected ? ChatFormatting.WHITE : ChatFormatting.GRAY;
-            sortLore.add(ModUtilities.literal(prefix + mode.getDisplayName(), color));
+            boolean isSelected = (getCurrentSortMode() == mode);
+            sortLore.add(getOptionLore(mode.getDisplayName(), isSelected));
         }
         sortLore.add(EMPTY_LINE);
         sortLore.add(ModUtilities.literal("Right-Click to go backwards!", ChatFormatting.WHITE));
-        sortLore.add(ModUtilities.literal("Click to switch filter!", ChatFormatting.GREEN));
+        sortLore.add(ModUtilities.literal("Click to switch filter!", ChatFormatting.YELLOW));
 
         List<Component> searchLore = new ArrayList<>();
         searchLore.add(EMPTY_LINE);

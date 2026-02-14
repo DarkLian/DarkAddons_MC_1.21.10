@@ -68,7 +68,7 @@ public class TeleportStick extends Item {
         consumer.accept(Component.literal("Instantly teleport to the").withStyle(ChatFormatting.GRAY));
         consumer.accept(Component.literal("nearest living entity ").withStyle(ChatFormatting.LIGHT_PURPLE)
                 .append(Component.literal("within ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal("10 blocks").withStyle(ChatFormatting.GREEN)));
+                .append(Component.literal("40 blocks").withStyle(ChatFormatting.GREEN)));
 
         consumer.accept(Component.empty());
 

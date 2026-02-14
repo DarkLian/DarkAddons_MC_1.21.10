@@ -102,7 +102,7 @@ public class Terminator extends BowItem {
 
         consumer.accept(Component.literal("Ability: Annihilation").withStyle(ChatFormatting.GOLD));
         consumer.accept(Component.literal("Shoots ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal("5 arrows").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal("3 arrows").withStyle(ChatFormatting.GOLD))
                 .append(Component.literal(" at once while").withStyle(ChatFormatting.GRAY)));
         consumer.accept(Component.literal("consuming only ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal("1 arrow").withStyle(ChatFormatting.YELLOW))

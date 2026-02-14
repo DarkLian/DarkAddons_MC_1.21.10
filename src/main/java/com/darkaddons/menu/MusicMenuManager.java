@@ -32,6 +32,7 @@ import java.util.Objects;
 import static com.darkaddons.core.ModSounds.getSound;
 import static com.darkaddons.core.ModSounds.getSoundDuration;
 import static com.darkaddons.utils.ModUtilities.createStaticItem;
+import static com.darkaddons.utils.ModUtilities.getOptionLore;
 
 public class MusicMenuManager extends BaseModMenuManager {
     public static final int STATUS_INDEX = 4;
@@ -107,14 +108,12 @@ public class MusicMenuManager extends BaseModMenuManager {
         List<Component> pLines = new ArrayList<>();
         pLines.add(EMPTY_LINE);
         for (MusicPlayMode mode : MusicPlayMode.values()) {
-            boolean selected = (mode == getCurrentPlayMode());
-            String prefix = selected ? "▶ " : "";
-            ChatFormatting color = selected ? ChatFormatting.WHITE : ChatFormatting.GRAY;
-            pLines.add(ModUtilities.literal(prefix + mode.getDisplayName(), color));
+            boolean selected = (getCurrentPlayMode() == mode);
+            pLines.add(getOptionLore(mode.getDisplayName(), selected));
         }
         pLines.add(EMPTY_LINE);
         pLines.add(ModUtilities.literal("Right-Click to go backwards!", ChatFormatting.WHITE));
-        pLines.add(ModUtilities.literal("Click to switch mode!", ChatFormatting.GREEN));
+        pLines.add(ModUtilities.literal("Click to switch mode!", ChatFormatting.YELLOW));
 
         MODE_BUTTON.set(DataComponents.LORE, new ItemLore(pLines));
         STATUS_DISPLAY.set(DataComponents.CUSTOM_NAME, status);

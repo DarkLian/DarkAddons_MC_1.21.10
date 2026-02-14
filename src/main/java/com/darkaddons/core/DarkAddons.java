@@ -1,11 +1,13 @@
 package com.darkaddons.core;
 
 import com.darkaddons.api.ModInit;
+import com.darkaddons.item.BonzoStaff;
 import com.darkaddons.utils.MusicLoopHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,10 @@ public class DarkAddons implements ModInitializer {
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 MusicLoopHandler.INSTANCE.onTick(player);
             }
+
+            for (ServerLevel level : server.getAllLevels()) {
+                BonzoStaff.tick(level);
+            }
         });
 
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, player, params) -> {
@@ -39,7 +45,5 @@ public class DarkAddons implements ModInitializer {
         });
 
         PayloadTypeRegistry.playS2C().register(ModPackets.OpenChatPayload.ID, ModPackets.OpenChatPayload.CODEC);
-
-
     }
 }

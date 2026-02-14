@@ -5,8 +5,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
@@ -33,32 +31,41 @@ public class ModComponents {
     }
 
     public enum Rarity implements StringRepresentable {
-        COMMON(Component.literal("COMMON"), ChatFormatting.WHITE),
-        UNCOMMON(Component.literal("UNCOMMON"), ChatFormatting.GREEN),
-        RARE(Component.literal("RARE"), ChatFormatting.BLUE),
-        EPIC(Component.literal("EPIC"), ChatFormatting.DARK_PURPLE),
-        LEGENDARY(Component.literal("LEGENDARY"), ChatFormatting.GOLD),
-        MYTHIC(Component.literal("MYTHIC"), ChatFormatting.LIGHT_PURPLE),
-        DIVINE(Component.literal("DIVINE"), ChatFormatting.AQUA),
-        SUPREME(Component.literal("SUPREME"), ChatFormatting.DARK_RED),
-        SPECIAL(Component.literal("SPECIAL"), ChatFormatting.RED),
-        VERY_SPECIAL(Component.literal("VERY SPECIAL"), ChatFormatting.RED);
+        COMMON("Common", ChatFormatting.WHITE),
+        UNCOMMON("Uncommon", ChatFormatting.GREEN),
+        RARE("Rare", ChatFormatting.BLUE),
+        EPIC("Epic", ChatFormatting.DARK_PURPLE),
+        LEGENDARY("Legendary", ChatFormatting.GOLD),
+        MYTHIC("Mythic", ChatFormatting.LIGHT_PURPLE),
+        DIVINE("Divine", ChatFormatting.AQUA),
+        SUPREME("Supreme", ChatFormatting.DARK_RED),
+        SPECIAL("Special", ChatFormatting.RED),
+        VERY_SPECIAL("Very Special", ChatFormatting.RED);
 
         public static final EnumCodec<Rarity> CODEC = StringRepresentable.fromEnum(Rarity::values);
-        private final MutableComponent displayName;
+        private static final Rarity[] MODES = values();
+        private final String displayName;
         private final ChatFormatting color;
 
-        Rarity(MutableComponent displayName, ChatFormatting color) {
-            this.displayName = displayName.withStyle(color);
+        Rarity(String displayName, ChatFormatting color) {
+            this.displayName = displayName;
             this.color = color;
         }
 
-        public MutableComponent getDisplayName() {
+        public String getDisplayName() {
             return this.displayName;
         }
 
         public ChatFormatting getColor() {
             return this.color;
+        }
+
+        public Rarity next() {
+            return MODES[(ordinal() + 1) % MODES.length];
+        }
+
+        public Rarity prev() {
+            return (ordinal() == 0) ? MODES[MODES.length - 1] : MODES[ordinal() - 1];
         }
 
         @Override
@@ -68,20 +75,29 @@ public class ModComponents {
     }
 
     public enum ItemType implements StringRepresentable {
-        WAND(Component.literal("WAND")),
-        SWORD(Component.literal("SWORD")),
-        BOW(Component.literal("BOW")),
-        TOOL(Component.literal("TOOL"));
+        WAND("Wand"),
+        SWORD("Sword"),
+        BOW("Bow"),
+        TOOL("Tool");
 
         public static final EnumCodec<ItemType> CODEC = StringRepresentable.fromEnum(ItemType::values);
-        private final MutableComponent displayName;
+        private static final ItemType[] MODES = values();
+        private final String displayName;
 
-        ItemType(MutableComponent displayName) {
+        ItemType(String displayName) {
             this.displayName = displayName;
         }
 
-        public MutableComponent getDisplayName() {
+        public String getDisplayName() {
             return this.displayName;
+        }
+
+        public ItemType next() {
+            return MODES[(ordinal() + 1) % MODES.length];
+        }
+
+        public ItemType prev() {
+            return (ordinal() == 0) ? MODES[MODES.length - 1] : MODES[ordinal() - 1];
         }
 
         @Override

@@ -57,13 +57,19 @@ public class ModUtilities {
     }
 
     public static MutableComponent getItemTypeLore(ItemStack itemStack) {
-        MutableComponent rarity = itemStack.getOrDefault(ModComponents.RARITY, ModComponents.Rarity.COMMON).getDisplayName();
+        String rarity = itemStack.getOrDefault(ModComponents.RARITY, ModComponents.Rarity.COMMON).getDisplayName().toUpperCase();
         ChatFormatting color = getRarityColor(itemStack);
-        MutableComponent itemType = itemStack.getOrDefault(ModComponents.ITEM_TYPE, ModComponents.ItemType.TOOL).getDisplayName();
-        return rarity.append(Component.literal(" ")).append(itemType).withStyle(color, ChatFormatting.BOLD);
+        String itemType = itemStack.getOrDefault(ModComponents.ITEM_TYPE, ModComponents.ItemType.TOOL).getDisplayName().toUpperCase();
+        return Component.literal(rarity + " " + itemType).withStyle(color, ChatFormatting.BOLD);
     }
 
     public static ChatFormatting getRarityColor(ItemStack itemStack) {
         return itemStack.getOrDefault(ModComponents.RARITY, ModComponents.Rarity.COMMON).getColor();
+    }
+
+    public static MutableComponent getOptionLore(String text, boolean isSelected) {
+        String prefix = isSelected ? "▶ " : "";
+        ChatFormatting color = isSelected ? ChatFormatting.WHITE : ChatFormatting.GRAY;
+        return literal(prefix + text, color);
     }
 }
