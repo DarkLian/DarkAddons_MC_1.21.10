@@ -76,9 +76,6 @@ public class Terminator extends BowItem {
 
             if (!isCreative) {
                 ammoStack.shrink(1);
-                if (ammoStack.isEmpty()) {
-                    player.getInventory().removeItem(ammoStack);
-                }
             }
 
         }

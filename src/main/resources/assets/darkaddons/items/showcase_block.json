@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "darkaddons:item/music_stick"
+    "model": "darkaddons:block/showcase_block"
   }
 }

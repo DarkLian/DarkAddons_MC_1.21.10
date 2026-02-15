@@ -131,7 +131,7 @@ public class Hyperion extends Item {
 
         itemStack.set(ModComponents.DURABILITY, durability - 1);
         player.getCooldowns().addCooldown(itemStack, COOLDOWN_TICKS);
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     @Override

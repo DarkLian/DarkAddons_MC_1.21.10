@@ -9,6 +9,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ToolMaterial;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +18,13 @@ import java.util.function.Function;
 import static com.darkaddons.core.DarkAddons.MOD_ID;
 
 public final class ModItems {
-    private static final List<ItemEntry> ITEM_ENTRIES = new ArrayList<>();
+    public static final List<ItemEntry> ITEM_ENTRIES = new ArrayList<>();
 
     static {
         register("lightning_stick", LightningStick::new, new Item.Properties().stacksTo(1).component(ModComponents.CHARGE, 20).component(ModComponents.RARITY, ModComponents.Rarity.RARE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.WAND));
-        register("teleport_stick", TeleportStick::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.RARE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.WAND));
-        register("hyperion", Hyperion::new, new Item.Properties().stacksTo(1).component(ModComponents.DURABILITY, 200).component(ModComponents.RARITY, ModComponents.Rarity.LEGENDARY).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.SWORD));
-        register("music_stick", MusicStick::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.UNCOMMON).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.TOOL));
+        register("aspect_of_the_void", Aotv::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.RARE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.WAND));
+        register("hyperion", Hyperion::new, new Item.Properties().stacksTo(1).component(ModComponents.DURABILITY, 200).component(ModComponents.RARITY, ModComponents.Rarity.LEGENDARY).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.SWORD).sword(ToolMaterial.DIAMOND, 3.0F, -2.4F));
+        register("music_wand", MusicStick::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.UNCOMMON).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.TOOL));
         register("gravity_stick", GravityStick::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.EPIC).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.WAND));
         register("terminator", Terminator::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.LEGENDARY).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.BOW));
         register("bonzo_staff", BonzoStaff::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.MYTHIC).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.WAND));

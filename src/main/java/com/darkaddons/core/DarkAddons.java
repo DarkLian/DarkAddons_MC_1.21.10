@@ -20,6 +20,8 @@ public class DarkAddons implements ModInitializer {
     public void onInitialize() {
         ModComponents.initialize();
         ModSounds.initialize();
+        ModBlocks.initialize();
+        ModBlockEntities.initialize();
         ModItems.initialize();
         ModCommands.register();
         ServerTickEvents.END_SERVER_TICK.register(server -> {

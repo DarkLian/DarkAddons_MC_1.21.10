@@ -18,18 +18,18 @@ import java.util.function.Consumer;
 
 import static com.darkaddons.utils.ModUtilities.*;
 
-public class TeleportStick extends Item {
+public class Aotv extends Item {
     private static final double ABILITY_RADIUS = 40.0;
     private static final int SUCCESS_COOLDOWN_TICKS = 5;
     private static final int FAIL_COOLDOWN_TICKS = 5;
 
-    public TeleportStick(Properties properties) {
+    public Aotv(Properties properties) {
         super(properties);
     }
 
     @Override
     public @NotNull Component getName(ItemStack stack) {
-        return Component.literal("Aspect of the Warp").withStyle(getRarityColor(stack));
+        return Component.literal("Aspect of the Void").withStyle(getRarityColor(stack));
     }
 
     @Override

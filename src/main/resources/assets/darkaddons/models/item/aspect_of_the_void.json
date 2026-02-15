@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "darkaddons:item/teleport_stick"
+    "layer0": "darkaddons:item/aspect_of_the_void"
   }
 }
