@@ -1,0 +1,4 @@
+Remove shadow from text display entity
+entity not removed on block broken (possibly associated with the onRemoved method override)
+Adjust item's size, text height
+Adjust glass model, size

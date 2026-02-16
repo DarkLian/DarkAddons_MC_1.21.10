@@ -5,11 +5,13 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -22,8 +24,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiConsumer;
+
 public class ShowcaseBlock extends BaseEntityBlock {
+
     public static final MapCodec<ShowcaseBlock> CODEC = simpleCodec(ShowcaseBlock::new);
+
+    private static final VoxelShape MODEL = Shapes.box(0.125, 0.125, 0.125, 0.875, 0.875, 0.875);
 
     public ShowcaseBlock(Properties properties) {
         super(properties);
@@ -36,16 +43,38 @@ public class ShowcaseBlock extends BaseEntityBlock {
 
     @Override
     public @NotNull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return Shapes.block();
+        return MODEL;
     }
 
     @Override
     public @NotNull VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return Shapes.empty();
+        return MODEL;
     }
 
     @Override
-    protected @NotNull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof ShowcaseBlockEntity showcase) {
+            showcase.spawnDisplayEntity();
+        }
+    }
+
+    @Override
+    public @NotNull BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof ShowcaseBlockEntity showcase) {
+            showcase.killDisplayEntity();
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    protected void onExplosionHit(
+            BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, Explosion explosion, BiConsumer<ItemStack, BlockPos> biConsumer) {
+    }
+
+    @Override
+    protected @NotNull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                                   Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (!(level.getBlockEntity(pos) instanceof ShowcaseBlockEntity showcase)) {
             return InteractionResult.PASS;
         }
@@ -64,13 +93,14 @@ public class ShowcaseBlock extends BaseEntityBlock {
         }
 
         if (!displayed.isEmpty()) {
-            if (player.getInventory().getFreeSlot() == -1) {
-                if (!level.isClientSide()) {
-                    player.displayClientMessage(Component.literal("Your inventory is full!").withStyle(ChatFormatting.RED), true);
+            if (!level.isClientSide()) {
+                if (player.getInventory().getFreeSlot() == -1) {
+                    player.displayClientMessage(
+                            Component.literal("Your inventory is full!").withStyle(ChatFormatting.RED), true);
+                } else {
+                    player.getInventory().placeItemBackInInventory(displayed);
+                    showcase.setDisplayedStack(ItemStack.EMPTY);
                 }
-            } else if (!level.isClientSide()) {
-                player.getInventory().placeItemBackInInventory(displayed);
-                showcase.setDisplayedStack(ItemStack.EMPTY);
             }
             return InteractionResult.SUCCESS;
         }
