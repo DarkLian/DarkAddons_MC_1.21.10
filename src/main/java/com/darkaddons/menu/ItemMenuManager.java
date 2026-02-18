@@ -118,24 +118,24 @@ public class ItemMenuManager extends BaseModMenuManager {
 
     private void handleRarityClick(Player player, BaseModMenu itemMenu, int button) {
         ModComponents.Rarity current = getFilterRarity();
+        ModComponents.Rarity first = ModComponents.Rarity.values()[0];
+        ModComponents.Rarity last = ModComponents.Rarity.values()[ModComponents.Rarity.values().length - 1];
         if (button == 0) {
-            setFilterRarity(current == null ? ModComponents.Rarity.COMMON :
-                    (current == ModComponents.Rarity.VERY_SPECIAL ? null : current.next()));
+            setFilterRarity(current == null ? first : (current == last ? null : current.next()));
         } else if (button == 1) {
-            setFilterRarity(current == null ? ModComponents.Rarity.VERY_SPECIAL :
-                    (current == ModComponents.Rarity.COMMON ? null : current.prev()));
+            setFilterRarity(current == null ? last : (current == first ? null : current.prev()));
         }
         refreshMenu(player, itemMenu);
     }
 
     private void handleTypeClick(Player player, BaseModMenu itemMenu, int button) {
         ModComponents.ItemType current = getFilterType();
+        ModComponents.ItemType first = ModComponents.ItemType.values()[0];
+        ModComponents.ItemType last = ModComponents.ItemType.values()[ModComponents.ItemType.values().length - 1];
         if (button == 0) {
-            setFilterType(current == null ? ModComponents.ItemType.WAND :
-                    (current == ModComponents.ItemType.TOOL ? null : current.next()));
+            setFilterType(current == null ? first : (current == last ? null : current.next()));
         } else if (button == 1) {
-            setFilterType(current == null ? ModComponents.ItemType.TOOL :
-                    (current == ModComponents.ItemType.WAND ? null : current.prev()));
+            setFilterType(current == null ? last : (current == first ? null : current.prev()));
         }
         refreshMenu(player, itemMenu);
     }

@@ -1,5 +1,6 @@
 package com.darkaddons.core;
 
+import com.darkaddons.block.entity.DisplayBaseEntity;
 import com.darkaddons.block.entity.ShowcaseBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.Registry;
@@ -21,6 +22,7 @@ public class ModBlockEntities {
     }
 
     public static final BlockEntityType<ShowcaseBlockEntity> SHOWCASE_BLOCK_ENTITY = register("showcase_block_entity", ShowcaseBlockEntity::new, ModBlocks.SHOWCASE_BLOCK);
+    public static final BlockEntityType<DisplayBaseEntity> DISPLAY_BASE_ENTITY = register("figure_stand_base_entity", DisplayBaseEntity::new, ModBlocks.DISPLAY_BASE);
 
 
 }

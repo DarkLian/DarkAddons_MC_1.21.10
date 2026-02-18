@@ -1,6 +1,6 @@
 package com.darkaddons.block;
 
-import com.darkaddons.block.entity.ShowcaseBlockEntity;
+import com.darkaddons.block.entity.DisplayBaseEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -26,13 +26,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 
-public class ShowcaseBlock extends BaseEntityBlock {
+public class DisplayBase extends BaseEntityBlock {
 
-    public static final MapCodec<ShowcaseBlock> CODEC = simpleCodec(ShowcaseBlock::new);
+    public static final MapCodec<DisplayBase> CODEC = simpleCodec(DisplayBase::new);
 
-    private static final VoxelShape MODEL = Shapes.box(0.125, 0, 0.125, 0.875, 0.75, 0.875);
+    private static final VoxelShape MODEL = Shapes.box(0, 0, 0, 1, 0.03125, 1);
 
-    public ShowcaseBlock(Properties properties) {
+    public DisplayBase(Properties properties) {
         super(properties);
     }
 
@@ -52,39 +52,27 @@ public class ShowcaseBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        super.onPlace(state, level, pos, oldState, movedByPiston);
-        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof ShowcaseBlockEntity showcase) {
-            showcase.spawnDisplayEntity();
-        }
+    protected void onExplosionHit(
+            BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, Explosion explosion, BiConsumer<ItemStack, BlockPos> biConsumer) {
     }
 
     @Override
-    public @NotNull BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof ShowcaseBlockEntity showcase) {
-            showcase.killDisplayEntity();
-        }
-        return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    @Override
-    protected void onExplosionHit(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, Explosion explosion, BiConsumer<ItemStack, BlockPos> biConsumer) {
-    }
-
-    @Override
-    protected @NotNull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (!(level.getBlockEntity(pos) instanceof ShowcaseBlockEntity showcase)) {
+    protected @NotNull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                                   Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (!(level.getBlockEntity(pos) instanceof DisplayBaseEntity base)) {
             return InteractionResult.PASS;
         }
 
         ItemStack heldItem = player.getItemInHand(hand);
-        ItemStack displayed = showcase.getDisplayedStack();
+        ItemStack displayed = base.getDisplayedStack();
 
         if (displayed.isEmpty() && !heldItem.isEmpty()) {
             if (!level.isClientSide()) {
                 ItemStack copy = heldItem.copy();
                 copy.setCount(1);
-                showcase.setDisplayedStack(copy);
+                float rotation = -player.getYRot();
+                base.setRotation(rotation);
+                base.setDisplayedStack(copy);
                 heldItem.shrink(1);
             }
             return InteractionResult.SUCCESS;
@@ -93,10 +81,12 @@ public class ShowcaseBlock extends BaseEntityBlock {
         if (!displayed.isEmpty()) {
             if (!level.isClientSide()) {
                 if (player.getInventory().getFreeSlot() == -1) {
-                    player.displayClientMessage(Component.literal("Your inventory is full!").withStyle(ChatFormatting.RED), true);
+                    player.displayClientMessage(
+                            Component.literal("Your inventory is full!").withStyle(ChatFormatting.RED), true);
                 } else {
                     player.getInventory().placeItemBackInInventory(displayed);
-                    showcase.setDisplayedStack(ItemStack.EMPTY);
+                    base.setDisplayedStack(ItemStack.EMPTY);
+                    base.setRotation(0.0f);
                 }
             }
             return InteractionResult.SUCCESS;
@@ -113,6 +103,6 @@ public class ShowcaseBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new ShowcaseBlockEntity(pos, state);
+        return new DisplayBaseEntity(pos, state);
     }
 }

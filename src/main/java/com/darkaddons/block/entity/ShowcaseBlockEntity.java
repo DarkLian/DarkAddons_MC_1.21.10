@@ -49,7 +49,7 @@ public class ShowcaseBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         Display.TextDisplay display = new Display.TextDisplay(EntityType.TEXT_DISPLAY, serverLevel);
-        display.setPos(worldPosition.getX() + 0.5, worldPosition.getY() + 1.5, worldPosition.getZ() + 0.5);
+        display.setPos(worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5);
         display.setBillboardConstraints(Display.BillboardConstraints.CENTER);
         display.setViewRange(4.0f);
         display.setBackgroundColor(0x40000000);

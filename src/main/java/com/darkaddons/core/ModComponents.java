@@ -5,6 +5,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +22,7 @@ public class ModComponents {
     public static final DataComponentType<String> SOUND_NAME = register("sound_name", builder -> builder.persistent(Codec.STRING));
     public static final DataComponentType<Rarity> RARITY = register("rarity", builder -> builder.persistent(Rarity.CODEC));
     public static final DataComponentType<ItemType> ITEM_TYPE = register("item_type", builder -> builder.persistent(ItemType.CODEC));
+    public static final DataComponentType<Integer> VARIANT = register("variant", builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
 
     private static <T> DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
         return Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ResourceLocation.fromNamespaceAndPath(MOD_ID, name), builderOperator.apply(DataComponentType.builder()).build());
@@ -78,7 +80,8 @@ public class ModComponents {
         WAND("Wand"),
         SWORD("Sword"),
         BOW("Bow"),
-        TOOL("Tool");
+        TOOL("Tool"),
+        BLOCK("Block");
 
         public static final EnumCodec<ItemType> CODEC = StringRepresentable.fromEnum(ItemType::values);
         private static final ItemType[] MODES = values();

@@ -1,6 +1,6 @@
 package com.darkaddons.client.renderer;
 
-import com.darkaddons.block.entity.ShowcaseBlockEntity;
+import com.darkaddons.block.entity.DisplayBaseEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
@@ -21,52 +21,49 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 @Environment(EnvType.CLIENT)
-public class ShowcaseBlockEntityRenderer implements BlockEntityRenderer<ShowcaseBlockEntity, ShowcaseBlockEntityRenderer.ShowcaseRenderState> {
+public class DisplayBaseEntityRenderer implements BlockEntityRenderer<DisplayBaseEntity, DisplayBaseEntityRenderer.DisplayRenderState> {
 
     @SuppressWarnings("unused")
-    public ShowcaseBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    public DisplayBaseEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
-    public @NotNull ShowcaseRenderState createRenderState() {
-        return new ShowcaseRenderState();
+    public @NotNull DisplayBaseEntityRenderer.DisplayRenderState createRenderState() {
+        return new DisplayRenderState();
     }
 
     @Override
-    public void extractRenderState(ShowcaseBlockEntity entity, ShowcaseRenderState state, float partialTick,
+    public void extractRenderState(DisplayBaseEntity entity, DisplayRenderState state, float partialTick,
                                    Vec3 cameraPos, CrumblingOverlay crumblingOverlay) {
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, cameraPos, crumblingOverlay);
 
         ItemStack stack = entity.getDisplayedStack();
 
-        long time = entity.getLevel() != null ? entity.getLevel().getGameTime() : 0;
-        state.yOffset = (float) Math.sin((time + partialTick) / 8.0) / 10.0f;
-        state.rotation = (time + partialTick) * 4;
+        state.rotation = entity.getRotation();
 
         state.itemRenderState.clear();
 
         if (!stack.isEmpty()) {
             Minecraft.getInstance().getItemModelResolver().updateForTopItem(
-                    state.itemRenderState, stack, ItemDisplayContext.GROUND, entity.getLevel(), null, 0);
+                    state.itemRenderState, stack, ItemDisplayContext.FIXED, entity.getLevel(), null, 0);
         }
     }
 
     @Override
-    public void submit(ShowcaseRenderState state, PoseStack poseStack, SubmitNodeCollector collector,
+    public void submit(DisplayRenderState state, PoseStack poseStack, SubmitNodeCollector collector,
                        CameraRenderState cameraRenderState) {
         if (state.itemRenderState.isEmpty()) return;
 
         poseStack.pushPose();
-        poseStack.translate(0.5, 0.23 + state.yOffset, 0.5);
+        poseStack.translate(0.5, 0.63, 0.5);
         poseStack.mulPose(Axis.YP.rotationDegrees(state.rotation));
-        poseStack.scale(1.0f, 1.0f, 1.0f);
+        poseStack.scale(30f, 30f, 30f); // it was 1.2f
         state.itemRenderState.submit(poseStack, collector, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
     }
 
-    public static class ShowcaseRenderState extends BlockEntityRenderState {
+    public static class DisplayRenderState extends BlockEntityRenderState {
         public final ItemStackRenderState itemRenderState = new ItemStackRenderState();
-        public float yOffset;
         public float rotation;
     }
 }

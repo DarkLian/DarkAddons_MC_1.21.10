@@ -1,6 +1,10 @@
 package com.darkaddons.core;
 
+import com.darkaddons.block.DisplayBase;
+import com.darkaddons.block.MemeBlock;
 import com.darkaddons.block.ShowcaseBlock;
+import com.darkaddons.item.DisplayBaseBlockItem;
+import com.darkaddons.item.MemeBlockItem;
 import com.darkaddons.item.ShowcaseBlockItem;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,7 +23,10 @@ import static com.darkaddons.core.ModItems.ITEM_ENTRIES;
 
 public class ModBlocks {
 
-    public static final Block SHOWCASE_BLOCK = register("showcase_block", ShowcaseBlock::new, ShowcaseBlockItem::new, BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).noOcclusion(), new Item.Properties().stacksTo(10).component(ModComponents.RARITY, ModComponents.Rarity.RARE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.TOOL));
+    public static final Block SHOWCASE_BLOCK = register("showcase_block", ShowcaseBlock::new, ShowcaseBlockItem::new, BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).noOcclusion(), new Item.Properties().stacksTo(10).component(ModComponents.RARITY, ModComponents.Rarity.RARE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.BLOCK));
+    public static final Block MEME_BLOCK = register("meme_block", MemeBlock::new, MemeBlockItem::new, BlockBehaviour.Properties.ofFullCopy(Blocks.STONE), new Item.Properties().stacksTo(64).component(ModComponents.RARITY, ModComponents.Rarity.DIVINE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.BLOCK));
+    public static final Block DISPLAY_BASE = register("display_base", DisplayBase::new, DisplayBaseBlockItem::new, BlockBehaviour.Properties.ofFullCopy(Blocks.QUARTZ_BLOCK).noOcclusion(), new Item.Properties().stacksTo(64).component(ModComponents.RARITY, ModComponents.Rarity.RARE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.TOOL));
+
 
     private static <B extends Block, I extends Item> B register(String name, Function<BlockBehaviour.Properties, B> blockFactory, BiFunction<B, Item.Properties, I> itemFactory, BlockBehaviour.Properties blockSettings, Item.Properties itemSettings) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(DarkAddons.MOD_ID, name);

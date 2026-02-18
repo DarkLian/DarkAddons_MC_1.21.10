@@ -4,12 +4,14 @@ package com.darkaddons.core;
 import com.darkaddons.item.*;
 import com.darkaddons.item.Terminator;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.component.CustomModelData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ public final class ModItems {
         register("gravity_stick", GravityStick::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.EPIC).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.WAND));
         register("terminator", Terminator::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.LEGENDARY).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.BOW));
         register("bonzo_staff", BonzoStaff::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.MYTHIC).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.WAND));
+        register("meme_item", MemeItem::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.DIVINE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.TOOL).component(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(0.0f), List.of(), List.of(), List.of())));
     }
 
     private static <T extends Item> void register(String name, Function<Item.Properties, T> itemFactory, Item.Properties properties) {
