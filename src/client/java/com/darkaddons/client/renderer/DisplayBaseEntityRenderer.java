@@ -57,7 +57,7 @@ public class DisplayBaseEntityRenderer implements BlockEntityRenderer<DisplayBas
         poseStack.pushPose();
         poseStack.translate(0.5, 0.63, 0.5);
         poseStack.mulPose(Axis.YP.rotationDegrees(state.rotation));
-        poseStack.scale(30f, 30f, 30f); // it was 1.2f
+        poseStack.scale(1.2f, 1.2f, 1.2f);
         state.itemRenderState.submit(poseStack, collector, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
     }

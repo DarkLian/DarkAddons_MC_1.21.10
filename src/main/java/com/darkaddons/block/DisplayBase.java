@@ -30,7 +30,7 @@ public class DisplayBase extends BaseEntityBlock {
 
     public static final MapCodec<DisplayBase> CODEC = simpleCodec(DisplayBase::new);
 
-    private static final VoxelShape MODEL = Shapes.box(0, 0, 0, 1, 0.03125, 1);
+    private static final VoxelShape MODEL = Shapes.box(0, 0, 0, 1, 0.015625, 1);
 
     public DisplayBase(Properties properties) {
         super(properties);
