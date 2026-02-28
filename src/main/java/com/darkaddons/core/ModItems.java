@@ -28,7 +28,8 @@ public final class ModItems {
         register("gravity_stick", GravityStick::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.EPIC).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.WAND));
         register("terminator", Terminator::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.LEGENDARY).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.BOW));
         register("bonzo_staff", BonzoStaff::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.MYTHIC).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.WAND));
-        register("meme_item", MemeItem::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.DIVINE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.TOOL));
+        register("meme_item", MemeItem::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.DIVINE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.COSMETIC).component(ModComponents.VARIANT, 0));
+        register("statue", Statue::new, new Item.Properties().stacksTo(1).component(ModComponents.RARITY, ModComponents.Rarity.DIVINE).component(ModComponents.ITEM_TYPE, ModComponents.ItemType.COSMETIC).component(ModComponents.VARIANT, 0));
     }
 
     private static <T extends Item> void register(String name, Function<Item.Properties, T> itemFactory, Item.Properties properties) {

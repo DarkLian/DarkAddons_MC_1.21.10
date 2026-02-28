@@ -81,7 +81,8 @@ public class ModComponents {
         SWORD("Sword"),
         BOW("Bow"),
         TOOL("Tool"),
-        BLOCK("Block");
+        BLOCK("Block"),
+        COSMETIC("Cosmetic");
 
         public static final EnumCodec<ItemType> CODEC = StringRepresentable.fromEnum(ItemType::values);
         private static final ItemType[] MODES = values();

@@ -21,26 +21,25 @@ import java.util.function.Consumer;
 
 import static com.darkaddons.utils.ModUtilities.*;
 
-public class MemeItem extends Item {
+public class Statue extends Item {
     private static final int TEXTURE_COUNT;
     private static final Map<Integer, String> id = new HashMap<>();
 
     static {
-        id.put(0, "The Dahlia");
-        id.put(1, "Evernight (lonely)");
-        id.put(2, "Evernight");
-        id.put(3, "Hyacine");
+        id.put(0, "Escoffier");
+        id.put(1, "Furina");
+        id.put(2, "Skirk");
 
         TEXTURE_COUNT = id.size();
     }
 
-    public MemeItem(Properties properties) {
+    public Statue(Properties properties) {
         super(properties);
     }
 
     @Override
     public @NotNull Component getName(ItemStack stack) {
-        return Component.literal("Meme Item").withStyle(getRarityColor(stack));
+        return Component.literal("Statue").withStyle(getRarityColor(stack));
     }
 
     @Override
@@ -58,7 +57,7 @@ public class MemeItem extends Item {
     @Override
     @SuppressWarnings("deprecation")
     public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
-        consumer.accept(Component.literal("Ability: Elation!").withStyle(ChatFormatting.GOLD));
+        consumer.accept(Component.literal("Ability: Magic!").withStyle(ChatFormatting.GOLD));
         consumer.accept(Component.literal("Right-click to select your favorite character!").withStyle(ChatFormatting.GRAY));
 
         consumer.accept(Component.empty());
