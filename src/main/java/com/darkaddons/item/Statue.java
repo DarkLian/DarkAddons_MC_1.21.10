@@ -29,6 +29,7 @@ public class Statue extends Item {
         id.put(0, "Escoffier");
         id.put(1, "Furina");
         id.put(2, "Skirk");
+        id.put(3, "Shenhe");
 
         TEXTURE_COUNT = id.size();
     }
